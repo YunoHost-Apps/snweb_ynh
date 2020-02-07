@@ -73,6 +73,16 @@
                 },
                 "choices": ["en", "fr", "de"],
                 "default": "en"
+            },
+            {
+                "name": "server_domain",
+                "type": "string",
+                "ask": {
+                    "en": "Choose a server domain name for snweb",
+		    "fr": "Choisissez un server domaine pour snweb",
+		    "de": "Wähle einen Server Domain Namen für snweb"
+                },
+                "example": "sync.standardnotes.org"
             }
         ]
     }
