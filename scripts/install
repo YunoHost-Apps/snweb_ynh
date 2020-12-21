@@ -140,6 +140,7 @@ ENV_PATH="$ynh_node_load_PATH:/opt/rbenv/versions/$RUBY_VERSION/bin"
 chown -R $app: "$final_path"
 
 pushd "$final_path/live"
+	git submodule update --init --recursive
 	ynh_use_nodejs
 	#exec_as $app $ENV_PATH $ynh_npm run setup
 	exec_as $app $ENV_PATH $ynh_npm ci
