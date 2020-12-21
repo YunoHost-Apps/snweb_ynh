@@ -7,7 +7,7 @@
 #=================================================
 
 source _common.sh
-source ynh_install_ruby__2
+source ynh_install_ruby
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -18,9 +18,7 @@ ynh_script_progression --message="Loading installation settings..." --time --wei
 app=$YNH_APP_INSTANCE_NAME
 
 domain=$(ynh_app_setting_get --app=$app --key=domain)
-port_web=$(ynh_app_setting_get --app=$app --key=port_web)
-db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-db_user=$db_name
+port=$(ynh_app_setting_get --app=$app --key=port)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 
 #=================================================
@@ -43,14 +41,6 @@ ynh_script_progression --message="Stopping and removing the systemd service..." 
 
 # Remove the dedicated systemd config
 ynh_remove_systemd_config --service="$app"
-
-#=================================================
-# REMOVE THE MYSQL DATABASE
-#=================================================
-#ynh_script_progression --message="Removing the MySQL database..." --time --weight=1
-
-# Remove a database if it exists, along with the associated user
-#ynh_mysql_remove_db --db_user=$db_user --db_name=$db_name
 
 #=================================================
 # REMOVE DEPENDENCIES

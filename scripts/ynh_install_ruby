@@ -22,8 +22,8 @@ SOURCE_SUM=80ad89ffe04c0b481503bd375f05c212bbc7d44ef5f5e649e0acdf25eba86736" > "
 
   # Build an app.src for ruby-build
   mkdir -p "../conf"
-  echo "SOURCE_URL=https://github.com/rbenv/ruby-build/archive/v20191004.tar.gz
-SOURCE_SUM=6f053957acb0af6d621ebf2b9dacc9c265844b2dc6842a021eb10f0a70094fe8" > "../conf/ruby-build.src"
+  echo "SOURCE_URL=https://github.com/rbenv/ruby-build/archive/v20201210.tar.gz
+SOURCE_SUM=256c7c29afe9ec01850e788ce4e4f496a215ab10083ea7cc9cad6dd8f03b6c5e" > "../conf/ruby-build.src"
   # Download and extract ruby-build
   ynh_setup_source "$rbenv_install_dir/plugins/ruby-build" ruby-build
 
