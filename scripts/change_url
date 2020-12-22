@@ -108,7 +108,10 @@ fi
 #=================================================
 # SPECIFIC MODIFICATIONS
 #=================================================
-# ...
+
+config_file="$final_path/live/.env"
+ynh_replace_string --match_string="APP_HOST=http://localhost:3001" --replace_string="APP_HOST=https://$domain${path_url%/}" --target_file="$config_file"
+
 #=================================================
 
 #=================================================

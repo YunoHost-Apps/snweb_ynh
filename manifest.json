@@ -3,9 +3,9 @@
     "id": "snweb",
     "packaging_format": 1,
     "description": {
-        "en": "Standard Notes Web App. An end-to-end encrypted note-taking app. Web, Mac, Windows, Linux, iOS, and Android."
+        "en": "The Standard Notes Web App. An end-to-end encrypted note-taking app. Web, Mac, Windows, Linux, iOS, and Android."
     },
-    "version": "3.0.14~ynh1",
+    "version": "3.5.11~ynh1",
     "url": "https://github.com/standardnotes/web",
     "license": "free",
     "maintainer": {
@@ -14,7 +14,7 @@
         "url": "https://github.com/FabianWilkens/snweb_ynh"
     },
     "requirements": {
-        "yunohost": ">= 3.5"
+        "yunohost": ">= 4.0"
     },
     "multi_instance": true,
     "services": [
@@ -62,16 +62,6 @@
 		    "de": "Ist die Application Öffendlich?"
                 },
                 "default": true
-            },
-            {
-                "name": "language",
-                "type": "string",
-                "ask": {
-                    "en": "Choose the application language",
-		    "fr": "Choisissez la langue de l'application",
-		    "de": "Wähle die Application Sprache"
-                },
-                "default": "en"
             },
             {
                 "name": "snserver_domain",

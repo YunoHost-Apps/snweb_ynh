@@ -8,6 +8,7 @@
 
 #Keep this path for calling _common.sh inside the execution's context of backup and restore scripts
 source ../settings/scripts/_common.sh
+source ../settings/scripts/ynh_install_ruby
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -31,8 +32,6 @@ app=$YNH_APP_INSTANCE_NAME
 domain=$(ynh_app_setting_get --app=$app --key=domain)
 path_url=$(ynh_app_setting_get --app=$app --key=path)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
-db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-db_user=$db_name
 
 #=================================================
 # CHECK IF THE APP CAN BE RESTORED
@@ -65,16 +64,24 @@ ynh_restore_file --origin_path="$final_path"
 ynh_script_progression --message="Recreating the dedicated system user..." --time --weight=1
 
 # Create the dedicated user (if not existing)
-ynh_system_user_create --username=$app
+ynh_system_user_create --username=$app --home_dir=$final_path
 
 #=================================================
 # RESTORE USER RIGHTS
 #=================================================
 
 # Restore permissions on app files
-chown -R "$app":"$app" $final_path
-mkdir -p "/var/log/$app"
-chown -R "$app":"$app" /var/log/$app
+chown -R root:root "$final_path"
+chown $app: "$final_path"
+mkdir -p $app: "$final_path/.config"
+chown $app: "$final_path/.config"
+mkdir -p "$final_path/live/log"
+chown -R $app: "$final_path/live/log"
+mkdir -p "$final_path/live/public"
+chown -R $app: "$final_path/live/public"
+mkdir -p "$final_path/live/tmp"
+chown -R $app: "$final_path/live/tmp"
+chown $app: "$final_path/live/Gemfile.lock"
 
 #=================================================
 # RESTORE FAIL2BAN CONFIGURATION
@@ -94,15 +101,9 @@ ynh_script_progression --message="Reinstalling dependencies..." --time --weight=
 
 # Define and install dependencies
 ynh_install_app_dependencies $pkg_dependencies
-
-#=================================================
-# RESTORE THE MYSQL DATABASE
-#=================================================
-ynh_script_progression --message="Restoring the MySQL database..." --time --weight=1
-
-db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
-ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name --db_pwd=$db_pwd
-ynh_mysql_connect_as --user=$db_user --password=$db_pwd --database=$db_name < ./db.sql
+ynh_install_nodejs --nodejs_version=$NODEJS_VERSION
+ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
+ynh_install_ruby --ruby_version=$RUBY_VERSION
 
 #=================================================
 # RESTORE SYSTEMD
@@ -116,7 +117,7 @@ systemctl enable $app.service
 # INTEGRATE SERVICE IN YUNOHOST
 #=================================================
 
-yunohost service add $app --description "A short description of the app" --log "/var/log/$app/$app.log"
+yunohost service add $app --description "Standard Notes" --log "/var/log/$app/$app.log"
 
 #=================================================
 # START SYSTEMD SERVICE
@@ -134,11 +135,10 @@ ynh_restore_file --origin_path="/etc/logrotate.d/$app"
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
-# RELOAD NGINX AND PHP-FPM
+# RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading nginx web server and php-fpm..." --time --weight=1
+ynh_script_progression --message="Reloading nginx web server..." --time --weight=1
 
-ynh_systemd_action --service_name=php7.0-fpm --action=reload
 ynh_systemd_action --service_name=nginx --action=reload
 
 #=================================================

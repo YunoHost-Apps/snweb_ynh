@@ -7,6 +7,7 @@
 #=================================================
 
 source _common.sh
+source ynh_install_ruby
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -18,11 +19,8 @@ app=$YNH_APP_INSTANCE_NAME
 
 domain=$(ynh_app_setting_get --app=$app --key=domain)
 path_url=$(ynh_app_setting_get --app=$app --key=path)
-admin=$(ynh_app_setting_get --app=$app --key=admin)
 is_public=$(ynh_app_setting_get --app=$app --key=is_public)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
-language=$(ynh_app_setting_get --app=$app --key=language)
-db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 
 #=================================================
 # CHECK VERSION
@@ -50,15 +48,9 @@ elif [ "$is_public" = "No" ]; then
 	is_public=0
 fi
 
-# If db_name doesn't exist, create it
-if [ -z "$db_name" ]; then
-	db_name=$(ynh_sanitize_dbid --db_name=$app)
-	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-fi
-
 # If final_path doesn't exist, create it
 if [ -z "$final_path" ]; then
-	final_path=/var/www/$app
+	final_path=/opt/yunohost/$app
 	ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 fi
 
@@ -77,18 +69,6 @@ ynh_clean_setup () {
 ynh_abort_if_errors
 
 #=================================================
-# CHECK THE PATH
-#=================================================
-
-# Normalize the URL path syntax
-# N.B. : this is for app installations before YunoHost 2.7
-# where this value might be something like /foo/ or foo/
-# instead of /foo ....
-# If nobody installed your app before 2.7, then you may
-# safely remove this line
-path_url=$(ynh_normalize_url_path --path_url=$path_url)
-
-#=================================================
 # STANDARD UPGRADE STEPS
 #=================================================
 # STOP SYSTEMD SERVICE
@@ -98,15 +78,38 @@ ynh_script_progression --message="Stopping a systemd service..." --time --weight
 ynh_systemd_action --service_name=$app --action="stop" --log_path="/var/log/$app/$app.log"
 
 #=================================================
+# UPGRADE DEPENDENCIES
+#=================================================
+ynh_script_progression --message="Upgrading dependencies..." --time --weight=1
+
+ynh_install_app_dependencies $pkg_dependencies
+ynh_install_nodejs --nodejs_version=$NODEJS_VERSION
+ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
+
+#=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
 	ynh_script_progression --message="Upgrading source files..." --time --weight=1
 
-	# Download, check integrity, uncompress and patch the source from app.src
-	ynh_setup_source --dest_dir="$final_path"
+	# Backup files to keep
+	tmpdir=$(mktemp -d)
+	if [ -d $final_path/live/log ] ; then
+		cp -Rp $final_path/live/log $tmpdir
+	fi
+	# Remove destination directory
+	ynh_secure_remove --file=$final_path
+	# Download
+	mkdir -p "$final_path"
+	git clone $SOURCE "$final_path/live" --quiet
+	pushd "$final_path/live"
+		git checkout $COMMIT --quiet
+	popd
+	# Restore files
+	if [ -d $tmpdir/log ] ; then
+		cp -Rp $tmpdir/log $final
+	fi
 fi
 
 #=================================================
@@ -115,14 +118,8 @@ fi
 ynh_script_progression --message="Upgrading nginx web server configuration..." --time --weight=1
 
 # Create a dedicated nginx config
-ynh_add_nginx_config
+ynh_add_nginx_config "port"
 
-#=================================================
-# UPGRADE DEPENDENCIES
-#=================================================
-ynh_script_progression --message="Upgrading dependencies..." --time --weight=1
-
-ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # CREATE DEDICATED USER
@@ -130,31 +127,59 @@ ynh_install_app_dependencies $pkg_dependencies
 ynh_script_progression --message="Making sure dedicated system user exists..." --time --weight=1
 
 # Create a dedicated user (if not existing)
-ynh_system_user_create --username=$app
+ynh_system_user_create --username=$app --home_dir=$final_path
 
 #=================================================
 # SPECIFIC UPGRADE
 #=================================================
-# ...
+# INSTALLING RUBY AND BUNDLER
 #=================================================
+ynh_script_progression --message="Installing Ruby..."  --weight=331
+
+ynh_install_ruby --ruby_version=$RUBY_VERSION
 
 #=================================================
-# STORE THE CONFIG FILE CHECKSUM
+# MODIFY A CONFIG FILE
 #=================================================
-
-### Verify the checksum of a file, stored by `ynh_store_file_checksum` in the install script.
-### And create a backup of this file if the checksum is different. So the file will be backed up if the admin had modified it.
-ynh_backup_if_checksum_is_different --file="$final_path/CONFIG_FILE"
-# Recalculate and store the checksum of the file for the next upgrade.
-ynh_store_file_checksum --file="$final_path/CONFIG_FILE"
+if [ "$upgrade_type" == "UPGRADE_APP" ]
+then
+	ynh_script_progression --message="Modifying a config file..." --time --weight=2
+	
+	config_file="$final_path/live/.env"
+	cp -f ../conf/env.sample $config_file
+	
+	ynh_replace_string --match_string="RAILS_ENV=development" --replace_string="RAILS_ENV=production" --target_file="$config_file"
+	ynh_replace_string --match_string="PORT=3001" --replace_string="PORT=$port" --target_file="$config_file"
+	secret_key=$(ynh_string_random --length=48 | base64)
+	ynh_replace_string --match_string="SECRET_KEY_BASE=test" --replace_string="SECRET_KEY_BASE=$secret_key" --target_file="$config_file"
+	ynh_replace_string --match_string="APP_HOST=http://localhost:3001" --replace_string="APP_HOST=https://$domain${path_url%/}" --target_file="$config_file"
+	if [ "$snserver_domain" = "" ]; then 
+		snserver_domain="sync.standardnotes.org"
+	fi
+	ynh_replace_string --match_string="SF_DEFAULT_SERVER=http://localhost:3000" --replace_string="SF_DEFAULT_SERVER=https://$snserver_domain" --target_file="$config_file"
+fi
 
 #=================================================
-# SETUP LOGROTATE
+# BUILDING 
 #=================================================
-ynh_script_progression --message="Upgrading logrotate configuration..." --time --weight=1
-
-# Use logrotate to manage app-specific logfile(s)
-ynh_use_logrotate --non-append
+if [ "$upgrade_type" == "UPGRADE_APP" ]
+then
+	ynh_script_progression --message="Building..."
+	
+	ENV_PATH="$ynh_node_load_PATH:/opt/rbenv/versions/$RUBY_VERSION/bin"
+	
+	chown -R $app: "$final_path"
+	
+	pushd "$final_path/live"
+		git submodule update --init --recursive
+		ynh_use_nodejs
+		exec_as $app $ENV_PATH $ynh_npm ci
+		env PATH=$ENV_PATH /opt/rbenv/versions/$RUBY_VERSION/bin/gem install bundler
+		env PATH=$ENV_PATH /opt/rbenv/versions/$RUBY_VERSION/bin/bundler install
+		exec_as $app $ENV_PATH $ynh_npm run bundle
+		exec_as $app $ENV_PATH /opt/rbenv/versions/$RUBY_VERSION/bin/bundle exec rails assets:precompile
+	popd
+fi
 
 #=================================================
 # SETUP SYSTEMD
@@ -162,24 +187,73 @@ ynh_use_logrotate --non-append
 ynh_script_progression --message="Upgrading systemd configuration..." --time --weight=1
 
 # Create a dedicated systemd config
-ynh_add_systemd_config
+ynh_add_systemd_config --others_var="\
+	port \
+	ENV_PATH \
+	RUBY_VERSION \
+"
+
+#=================================================
+# STORE THE CONFIG FILE CHECKSUM
+#=================================================
+
+ynh_store_file_checksum --file="$config_file"
+ynh_store_file_checksum --file="/etc/nginx/conf.d/$domain.d/$app.conf"
 
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
-# UPGRADE FAIL2BAN
-#=================================================
-ynh_script_progression --message="Reconfiguring fail2ban..." --time --weight=1
-
-# Create a dedicated fail2ban config
-ynh_add_fail2ban_config --logpath="/var/log/nginx/${domain}-error.log" --failregex="Regex to match into the log for a failed login"
-
-#=================================================
 # SECURE FILES AND DIRECTORIES
 #=================================================
+ynh_script_progression --message="Securing files and directories..."
 
-# Set permissions on app files
-chown -R root: $final_path
+# Set permissions to app files
+chown -R root:root "$final_path"
+chown $app: "$final_path"
+mkdir -p $app: "$final_path/.config"
+chown $app: "$final_path/.config"
+mkdir -p "$final_path/live/log"
+chown -R $app: "$final_path/live/log"
+mkdir -p "$final_path/live/public"
+chown -R $app: "$final_path/live/public"
+mkdir -p "$final_path/live/tmp"
+chown -R $app: "$final_path/live/tmp"
+chown $app: "$final_path/live/Gemfile.lock"
+
+mkdir -p "/var/log/$app"
+chown -R $app: "/var/log/$app"
+
+#=================================================
+# SETUP LOGROTATE
+#=================================================
+ynh_script_progression --message="Upgrading logrotate configuration..."
+
+# Use logrotate to manage application logfile(s)
+ynh_use_logrotate --logfile="$final_path/live/log/production.log"
+ynh_use_logrotate --logfile="/var/log/$app/$app.log"
+
+#=================================================
+# INTEGRATE SERVICE IN YUNOHOST
+#=================================================
+ynh_script_progression --message="Integrating service in YunoHost..."
+
+yunohost service add $app --description "Standard Notes" --log "/var/log/$app/$app.log"
+
+#=================================================
+# START SYSTEMD SERVICE
+#=================================================
+ynh_script_progression --message="Starting a systemd service..."
+
+# Start a systemd service
+ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log"
+
+#=================================================
+# UPGRADE FAIL2BAN
+#=================================================
+#ynh_script_progression --message="Reconfiguring fail2ban..." --time --weight=1
+
+# Create a dedicated fail2ban config
+#ynh_add_fail2ban_config --logpath="/var/log/nginx/${domain}-error.log" --failregex="Regex to match into the log for a failed login"
 
 #=================================================
 # SETUP SSOWAT
@@ -189,16 +263,9 @@ ynh_script_progression --message="Upgrading SSOwat configuration..." --time --we
 # Make app public if necessary
 if [ $is_public -eq 1 ]
 then
-	# unprotected_uris allows SSO credentials to be passed anyway
-	ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
+	# Create the visitors permission if needed
+	ynh_permission_update --permission "main" --add "visitors"
 fi
-
-#=================================================
-# START SYSTEMD SERVICE
-#=================================================
-ynh_script_progression --message="Starting a systemd service..." --time --weight=1
-
-ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log"
 
 #=================================================
 # RELOAD NGINX

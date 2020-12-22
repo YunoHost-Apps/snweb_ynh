@@ -5,7 +5,6 @@
 #=================================================
 
 # dependencies used by the app
-#pkg_dependencies="libsqlite3-dev default-libmysqlclient-dev"
 pkg_dependencies="\
 		zlib1g-dev \
 		libssl-dev \

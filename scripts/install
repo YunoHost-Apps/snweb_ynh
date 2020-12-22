@@ -123,8 +123,7 @@ ynh_replace_string --match_string="RAILS_ENV=development" --replace_string="RAIL
 ynh_replace_string --match_string="PORT=3001" --replace_string="PORT=$port" --target_file="$config_file"
 secret_key=$(ynh_string_random --length=48 | base64)
 ynh_replace_string --match_string="SECRET_KEY_BASE=test" --replace_string="SECRET_KEY_BASE=$secret_key" --target_file="$config_file"
-
-
+ynh_replace_string --match_string="APP_HOST=http://localhost:3001" --replace_string="APP_HOST=https://$domain${path_url%/}" --target_file="$config_file"
 if [ "$snserver_domain" = "" ]; then 
 	snserver_domain="sync.standardnotes.org"
 fi
@@ -142,7 +141,6 @@ chown -R $app: "$final_path"
 pushd "$final_path/live"
 	git submodule update --init --recursive
 	ynh_use_nodejs
-	#exec_as $app $ENV_PATH $ynh_npm run setup
 	exec_as $app $ENV_PATH $ynh_npm ci
 	env PATH=$ENV_PATH /opt/rbenv/versions/$RUBY_VERSION/bin/gem install bundler
 	env PATH=$ENV_PATH /opt/rbenv/versions/$RUBY_VERSION/bin/bundler install
@@ -202,14 +200,14 @@ ynh_script_progression --message="Configuring log rotation..."
 
 # Use logrotate to manage application logfile(s)
 ynh_use_logrotate --logfile="$final_path/live/log/production.log"
-ynh_use_logrotate --logfile="/var/log/$app/snweb.log"
+ynh_use_logrotate --logfile="/var/log/$app/$app.log"
 
 #=================================================
 # INTEGRATE SERVICE IN YUNOHOST
 #=================================================
 ynh_script_progression --message="Integrating service in YunoHost..."
 
-yunohost service add $app --description "Standard Notes - Web Frontend"
+yunohost service add $app --description "Standard Notes" --log "/var/log/$app/$app.log"
 
 #=================================================
 # START SYSTEMD SERVICE
@@ -217,7 +215,8 @@ yunohost service add $app --description "Standard Notes - Web Frontend"
 ynh_script_progression --message="Starting a systemd service..."
 
 # Start a systemd service
-ynh_systemd_action --service_name=$app --action="start"
+ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log"
+
 
 #=================================================
 # SETUP SSOWAT
