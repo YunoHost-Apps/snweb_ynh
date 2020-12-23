@@ -29,11 +29,7 @@ ynh_script_progression --message="Loading installation settings..." --time --wei
 
 # Needed for helper "ynh_add_nginx_config"
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
-
-# Add settings here as needed by your application
-#db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-#db_user=$db_name
-#db_pwd=$(ynh_app_setting_get --app=$app --key=db_pwd)
+port=$(ynh_app_setting_get --app=$app --key=port)
 
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
@@ -130,6 +126,14 @@ ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$ap
 ynh_script_progression --message="Reloading nginx web server..." --time --weight=1
 
 ynh_systemd_action --service_name=nginx --action=reload
+
+#=================================================
+# STORE SETTINGS
+#=================================================
+ynh_script_progression --message="Storing settings..."  --weight=2
+
+ynh_app_setting_set --app=$app --key=domain --value=$new_domain
+ynh_app_setting_set --app=$app --key=path --value=$new_path
 
 #=================================================
 # END OF SCRIPT

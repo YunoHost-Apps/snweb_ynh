@@ -75,6 +75,7 @@ ynh_script_progression --message="Removing logrotate configuration..." --weight=
 
 # Remove the app-specific logrotate config
 ynh_remove_logrotate
+ynh_secure_remove --file="/var/log/$app"
 
 #=================================================
 # CLOSE A PORT
