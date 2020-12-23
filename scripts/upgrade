@@ -13,7 +13,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_script_progression --message="Loading installation settings..." --time --weight=1
+ynh_script_progression --message="Loading installation settings..." --weight=2
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -21,6 +21,8 @@ domain=$(ynh_app_setting_get --app=$app --key=domain)
 path_url=$(ynh_app_setting_get --app=$app --key=path)
 is_public=$(ynh_app_setting_get --app=$app --key=is_public)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
+port=$(ynh_app_setting_get --app=$app --key=port)
+snserver_domain=$(ynh_app_setting_get --app=$app --key=snserver_domain)
 
 #=================================================
 # CHECK VERSION
@@ -37,7 +39,7 @@ upgrade_type=$(ynh_check_app_version_changed)
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
-ynh_script_progression --message="Ensuring downward compatibility..." --time --weight=1
+ynh_script_progression --message="Ensuring downward compatibility..." --weight=1
 
 # Fix is_public as a boolean value
 if [ "$is_public" = "Yes" ]; then
@@ -57,7 +59,7 @@ fi
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
-ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --time --weight=1
+ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=69
 
 # Backup the current version of the app
 ynh_backup_before_upgrade
@@ -73,14 +75,14 @@ ynh_abort_if_errors
 #=================================================
 # STOP SYSTEMD SERVICE
 #=================================================
-ynh_script_progression --message="Stopping a systemd service..." --time --weight=1
+ynh_script_progression --message="Stopping a systemd service..." --weight=1
 
 ynh_systemd_action --service_name=$app --action="stop" --log_path="/var/log/$app/$app.log"
 
 #=================================================
 # UPGRADE DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Upgrading dependencies..." --time --weight=1
+ynh_script_progression --message="Upgrading dependencies..." --weight=37
 
 ynh_install_app_dependencies $pkg_dependencies
 ynh_install_nodejs --nodejs_version=$NODEJS_VERSION
@@ -91,8 +93,7 @@ ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ st
 #=================================================
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
-	ynh_script_progression --message="Upgrading source files..." --time --weight=1
-
+	ynh_script_progression --message="Upgrading source files..." --weight=17
 	# Backup files to keep
 	tmpdir=$(mktemp -d)
 	if [ -d $final_path/live/log ] ; then
@@ -108,14 +109,14 @@ then
 	popd
 	# Restore files
 	if [ -d $tmpdir/log ] ; then
-		cp -Rp $tmpdir/log $final
+		cp -Rp $tmpdir/log "$final_path/live"
 	fi
 fi
 
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_script_progression --message="Upgrading nginx web server configuration..." --time --weight=1
+ynh_script_progression --message="Upgrading nginx web server configuration..." --weight=3
 
 # Create a dedicated nginx config
 ynh_add_nginx_config "port"
@@ -124,7 +125,7 @@ ynh_add_nginx_config "port"
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
-ynh_script_progression --message="Making sure dedicated system user exists..." --time --weight=1
+ynh_script_progression --message="Making sure dedicated system user exists..." --weight=1
 
 # Create a dedicated user (if not existing)
 ynh_system_user_create --username=$app --home_dir=$final_path
@@ -143,7 +144,7 @@ ynh_install_ruby --ruby_version=$RUBY_VERSION
 #=================================================
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
-	ynh_script_progression --message="Modifying a config file..." --time --weight=2
+	ynh_script_progression --message="Modifying a config file..." --weight=2
 	
 	config_file="$final_path/live/.env"
 	cp -f ../conf/env.sample $config_file
@@ -164,7 +165,7 @@ fi
 #=================================================
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
-	ynh_script_progression --message="Building..."
+	ynh_script_progression --message="Building..." --weight=131
 	
 	ENV_PATH="$ynh_node_load_PATH:/opt/rbenv/versions/$RUBY_VERSION/bin"
 	
@@ -184,7 +185,7 @@ fi
 #=================================================
 # SETUP SYSTEMD
 #=================================================
-ynh_script_progression --message="Upgrading systemd configuration..." --time --weight=1
+ynh_script_progression --message="Upgrading systemd configuration..." --weight=4
 
 # Create a dedicated systemd config
 ynh_add_systemd_config --others_var="\
@@ -205,7 +206,7 @@ ynh_store_file_checksum --file="/etc/nginx/conf.d/$domain.d/$app.conf"
 #=================================================
 # SECURE FILES AND DIRECTORIES
 #=================================================
-ynh_script_progression --message="Securing files and directories..."
+ynh_script_progression --message="Securing files and directories..." --weight=2
 
 # Set permissions to app files
 chown -R root:root "$final_path"
@@ -226,7 +227,7 @@ chown -R $app: "/var/log/$app"
 #=================================================
 # SETUP LOGROTATE
 #=================================================
-ynh_script_progression --message="Upgrading logrotate configuration..."
+ynh_script_progression --message="Upgrading logrotate configuration..." --weight=1
 
 # Use logrotate to manage application logfile(s)
 ynh_use_logrotate --logfile="$final_path/live/log/production.log"
@@ -235,14 +236,14 @@ ynh_use_logrotate --logfile="/var/log/$app/$app.log"
 #=================================================
 # INTEGRATE SERVICE IN YUNOHOST
 #=================================================
-ynh_script_progression --message="Integrating service in YunoHost..."
+ynh_script_progression --message="Integrating service in YunoHost..." --weight=1
 
 yunohost service add $app --description "Standard Notes" --log "/var/log/$app/$app.log"
 
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
-ynh_script_progression --message="Starting a systemd service..."
+ynh_script_progression --message="Starting a systemd service..." --weight=2
 
 # Start a systemd service
 ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log"
@@ -250,7 +251,7 @@ ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$ap
 #=================================================
 # UPGRADE FAIL2BAN
 #=================================================
-#ynh_script_progression --message="Reconfiguring fail2ban..." --time --weight=1
+#ynh_script_progression --message="Reconfiguring fail2ban..." --weight=1
 
 # Create a dedicated fail2ban config
 #ynh_add_fail2ban_config --logpath="/var/log/nginx/${domain}-error.log" --failregex="Regex to match into the log for a failed login"
@@ -258,7 +259,7 @@ ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$ap
 #=================================================
 # SETUP SSOWAT
 #=================================================
-ynh_script_progression --message="Upgrading SSOwat configuration..." --time --weight=1
+ynh_script_progression --message="Upgrading SSOwat configuration..." --weight=2
 
 # Make app public if necessary
 if [ $is_public -eq 1 ]
@@ -270,7 +271,7 @@ fi
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading nginx web server..." --time --weight=1
+ynh_script_progression --message="Reloading nginx web server..." --weight=1
 
 ynh_systemd_action --service_name=nginx --action=reload
 
@@ -278,4 +279,4 @@ ynh_systemd_action --service_name=nginx --action=reload
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Upgrade of $app completed" --time --last
+ynh_script_progression --message="Upgrade of $app completed" --last

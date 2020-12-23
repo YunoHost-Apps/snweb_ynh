@@ -17,7 +17,8 @@ old_domain=$YNH_APP_OLD_DOMAIN
 old_path=$YNH_APP_OLD_PATH
 
 new_domain=$YNH_APP_NEW_DOMAIN
-new_path=$YNH_APP_NEW_PATH
+#new_path=$YNH_APP_NEW_PATH
+new_path="/"
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -92,7 +93,7 @@ then
 	domain="$old_domain"
 	path_url="$new_path"
 	# Create a dedicated nginx config
-	ynh_add_nginx_config
+	ynh_add_nginx_config "port"
 fi
 
 # Change the domain for nginx

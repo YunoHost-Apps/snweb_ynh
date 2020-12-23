@@ -34,26 +34,6 @@
                 "example": "example.com"
             },
             {
-                "name": "path",
-                "type": "path",
-                "ask": {
-                    "en": "Choose a path for snweb",
-		    "de": "Wähle einen Pfad für snweb"
-                },
-                "example": "/",
-                "default": "/"
-            },
-            {
-                "name": "admin",
-                "type": "user",
-                "ask": {
-                    "en": "Choose an admin user",
-		    "fr": "Choisissez l'administrateur",
-		    "de": "Wähle einen Admin Benutzer"
-                },
-                "example": "johndoe"
-            },
-            {
                 "name": "is_public",
                 "type": "boolean",
                 "ask": {
