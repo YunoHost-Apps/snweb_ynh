@@ -43,17 +43,17 @@ ynh_script_progression --message="Ensuring downward compatibility..." --weight=1
 
 # Fix is_public as a boolean value
 if [ "$is_public" = "Yes" ]; then
-	ynh_app_setting_set --app=$app --key=is_public --value=1
-	is_public=1
+    ynh_app_setting_set --app=$app --key=is_public --value=1
+    is_public=1
 elif [ "$is_public" = "No" ]; then
-	ynh_app_setting_set --app=$app --key=is_public --value=0
-	is_public=0
+    ynh_app_setting_set --app=$app --key=is_public --value=0
+    is_public=0
 fi
 
 # If final_path doesn't exist, create it
 if [ -z "$final_path" ]; then
-	final_path=/opt/yunohost/$app
-	ynh_app_setting_set --app=$app --key=final_path --value=$final_path
+    final_path=/opt/yunohost/$app
+    ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 fi
 
 #=================================================
@@ -64,8 +64,8 @@ ynh_script_progression --message="Backing up the app before upgrading (may take 
 # Backup the current version of the app
 ynh_backup_before_upgrade
 ynh_clean_setup () {
-	# restore it if the upgrade fails
-	ynh_restore_upgradebackup
+    # restore it if the upgrade fails
+    ynh_restore_upgradebackup
 }
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
@@ -93,24 +93,24 @@ ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ st
 #=================================================
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
-	ynh_script_progression --message="Upgrading source files..." --weight=17
-	# Backup files to keep
-	tmpdir=$(mktemp -d)
-	if [ -d $final_path/live/log ] ; then
-		cp -Rp $final_path/live/log $tmpdir
-	fi
-	# Remove destination directory
-	ynh_secure_remove --file=$final_path
-	# Download
-	mkdir -p "$final_path"
-	git clone $SOURCE "$final_path/live" --quiet
-	pushd "$final_path/live"
-		git checkout $COMMIT --quiet
-	popd
-	# Restore files
-	if [ -d $tmpdir/log ] ; then
-		cp -Rp $tmpdir/log "$final_path/live"
-	fi
+    ynh_script_progression --message="Upgrading source files..." --weight=17
+    # Backup files to keep
+    tmpdir=$(mktemp -d)
+    if [ -d $final_path/live/log ] ; then
+        cp -Rp $final_path/live/log $tmpdir
+    fi
+    # Remove destination directory
+    ynh_secure_remove --file=$final_path
+    # Download
+    mkdir -p "$final_path"
+    git clone $SOURCE "$final_path/live" --quiet
+    pushd "$final_path/live"
+        git checkout $COMMIT --quiet
+    popd
+    # Restore files
+    if [ -d $tmpdir/log ] ; then
+        cp -Rp $tmpdir/log "$final_path/live"
+    fi
 fi
 
 #=================================================
@@ -135,29 +135,28 @@ ynh_system_user_create --username=$app --home_dir=$final_path
 #=================================================
 # INSTALLING RUBY AND BUNDLER
 #=================================================
-ynh_script_progression --message="Installing Ruby..."  --weight=331
+ynh_script_progression --message="Installing Ruby... ( This may take a while... )"  --weight=100 #331
 
 ynh_install_ruby --ruby_version=$RUBY_VERSION
 
 #=================================================
 # MODIFY A CONFIG FILE
 #=================================================
+config_file="$final_path/live/.env"
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
-	ynh_script_progression --message="Modifying a config file..." --weight=2
-	
-	config_file="$final_path/live/.env"
-	cp -f ../conf/env.sample $config_file
-	
-	ynh_replace_string --match_string="RAILS_ENV=development" --replace_string="RAILS_ENV=production" --target_file="$config_file"
-	ynh_replace_string --match_string="PORT=3001" --replace_string="PORT=$port" --target_file="$config_file"
-	secret_key=$(ynh_string_random --length=48 | base64)
-	ynh_replace_string --match_string="SECRET_KEY_BASE=test" --replace_string="SECRET_KEY_BASE=$secret_key" --target_file="$config_file"
-	ynh_replace_string --match_string="APP_HOST=http://localhost:3001" --replace_string="APP_HOST=https://$domain${path_url%/}" --target_file="$config_file"
-	if [ "$snserver_domain" = "" ]; then 
-		snserver_domain="sync.standardnotes.org"
-	fi
-	ynh_replace_string --match_string="SF_DEFAULT_SERVER=http://localhost:3000" --replace_string="SF_DEFAULT_SERVER=https://$snserver_domain" --target_file="$config_file"
+    ynh_script_progression --message="Modifying a config file..." --weight=2
+
+    cp -f ../conf/env.sample $config_file
+    ynh_replace_string --match_string="RAILS_ENV=development" --replace_string="RAILS_ENV=production" --target_file="$config_file"
+    ynh_replace_string --match_string="PORT=3001" --replace_string="PORT=$port" --target_file="$config_file"
+    secret_key=$(ynh_string_random --length=48 | base64)
+    ynh_replace_string --match_string="SECRET_KEY_BASE=test" --replace_string="SECRET_KEY_BASE=$secret_key" --target_file="$config_file"
+    ynh_replace_string --match_string="APP_HOST=http://localhost:3001" --replace_string="APP_HOST=https://$domain${path_url%/}" --target_file="$config_file"
+    if [ "$snserver_domain" = "" ]; then
+        snserver_domain="sync.standardnotes.org"
+    fi
+    ynh_replace_string --match_string="SF_DEFAULT_SERVER=http://localhost:3000" --replace_string="SF_DEFAULT_SERVER=https://$snserver_domain" --target_file="$config_file"
 fi
 
 #=================================================
@@ -165,21 +164,21 @@ fi
 #=================================================
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
-	ynh_script_progression --message="Building..." --weight=131
-	
-	ENV_PATH="$ynh_node_load_PATH:/opt/rbenv/versions/$RUBY_VERSION/bin"
-	
-	chown -R $app: "$final_path"
-	
-	pushd "$final_path/live"
-		git submodule update --init --recursive
-		ynh_use_nodejs
-		exec_as $app $ENV_PATH $ynh_npm ci
-		env PATH=$ENV_PATH /opt/rbenv/versions/$RUBY_VERSION/bin/gem install bundler
-		env PATH=$ENV_PATH /opt/rbenv/versions/$RUBY_VERSION/bin/bundler install
-		exec_as $app $ENV_PATH $ynh_npm run bundle
-		exec_as $app $ENV_PATH /opt/rbenv/versions/$RUBY_VERSION/bin/bundle exec rails assets:precompile
-	popd
+    ynh_script_progression --message="Building... ( This may take a while... )" --weight=100 #131
+
+    ENV_PATH="$ynh_node_load_PATH:/opt/rbenv/versions/$RUBY_VERSION/bin"
+
+    chown -R $app: "$final_path"
+
+    pushd "$final_path/live"
+        git submodule update --init --recursive --quiet
+        ynh_use_nodejs
+        exec_as $app $ENV_PATH $ynh_npm --loglevel=error ci
+        env PATH=$ENV_PATH /opt/rbenv/versions/$RUBY_VERSION/bin/gem install bundler --quiet
+        env PATH=$ENV_PATH /opt/rbenv/versions/$RUBY_VERSION/bin/bundler install --quiet
+        exec_as $app $ENV_PATH $ynh_npm --loglevel=error run bundle
+        exec_as $app $ENV_PATH /opt/rbenv/versions/$RUBY_VERSION/bin/bundle exec rails assets:precompile --quiet
+    popd
 fi
 
 #=================================================
@@ -189,9 +188,9 @@ ynh_script_progression --message="Upgrading systemd configuration..." --weight=4
 
 # Create a dedicated systemd config
 ynh_add_systemd_config --others_var="\
-	port \
-	ENV_PATH \
-	RUBY_VERSION \
+    port \
+    ENV_PATH \
+    RUBY_VERSION \
 "
 
 #=================================================
@@ -213,6 +212,8 @@ chown -R root:root "$final_path"
 chown $app: "$final_path"
 mkdir -p $app: "$final_path/.config"
 chown $app: "$final_path/.config"
+mkdir -p $app: "$final_path/.cache"
+chown $app: "$final_path/.cache"
 mkdir -p "$final_path/live/log"
 chown -R $app: "$final_path/live/log"
 mkdir -p "$final_path/live/public"
@@ -247,6 +248,7 @@ ynh_script_progression --message="Starting a systemd service..." --weight=2
 
 # Start a systemd service
 ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log"
+sleep 10
 
 #=================================================
 # UPGRADE FAIL2BAN
@@ -264,8 +266,8 @@ ynh_script_progression --message="Upgrading SSOwat configuration..." --weight=2
 # Make app public if necessary
 if [ $is_public -eq 1 ]
 then
-	# Create the visitors permission if needed
-	ynh_permission_update --permission "main" --add "visitors"
+    # Create the visitors permission if needed
+    ynh_permission_update --permission "main" --add "visitors"
 fi
 
 #=================================================
