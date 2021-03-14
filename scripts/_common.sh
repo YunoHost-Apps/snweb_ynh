@@ -13,10 +13,10 @@ pkg_dependencies="\
         "
 
 RUBY_VERSION="2.7.2"
-NODEJS_VERSION="10"
+NODEJS_VERSION="15.11.0"
 
 SOURCE="https://github.com/standardnotes/web"
-COMMIT="31676f1cc61898147b363d442593870ae880d3e5"
+COMMIT="22da9ea942dbb9f7fe66af0bf43290b06b7fb482"
 
 #=================================================
 # PERSONAL HELPERS
