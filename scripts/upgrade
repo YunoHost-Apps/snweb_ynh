@@ -19,7 +19,6 @@ app=$YNH_APP_INSTANCE_NAME
 
 domain=$(ynh_app_setting_get --app=$app --key=domain)
 path_url=$(ynh_app_setting_get --app=$app --key=path)
-is_public=$(ynh_app_setting_get --app=$app --key=is_public)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 port=$(ynh_app_setting_get --app=$app --key=port)
 snserver_domain=$(ynh_app_setting_get --app=$app --key=snserver_domain)
@@ -41,13 +40,11 @@ upgrade_type=$(ynh_check_app_version_changed)
 #=================================================
 ynh_script_progression --message="Ensuring downward compatibility..." --weight=1
 
-# Fix is_public as a boolean value
-if [ "$is_public" = "Yes" ]; then
-    ynh_app_setting_set --app=$app --key=is_public --value=1
-    is_public=1
-elif [ "$is_public" = "No" ]; then
-    ynh_app_setting_set --app=$app --key=is_public --value=0
-    is_public=0
+# Cleaning legacy permissions
+if ynh_legacy_permissions_exists; then
+    ynh_legacy_permissions_delete_all
+
+    ynh_app_setting_delete --app=$app --key=is_public
 fi
 
 # If final_path doesn't exist, create it
@@ -259,18 +256,6 @@ sleep 10
 
 # Create a dedicated fail2ban config
 #ynh_add_fail2ban_config --logpath="/var/log/nginx/${domain}-error.log" --failregex="Regex to match into the log for a failed login"
-
-#=================================================
-# SETUP SSOWAT
-#=================================================
-ynh_script_progression --message="Upgrading SSOwat configuration..." --weight=2
-
-# Make app public if necessary
-if [ $is_public -eq 1 ]
-then
-    # Create the visitors permission if needed
-    ynh_permission_update --permission "main" --add "visitors"
-fi
 
 #=================================================
 # RELOAD NGINX
