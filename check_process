@@ -15,7 +15,8 @@
 		setup_private=1
 		setup_public=1
 		upgrade=1
-		upgrade=0	from_commit=
+		# 3.5.11~ynh1
+		upgrade=1	from_commit=2c82b25537bc09b99c1daeced8ca38fe9b1bae8b
 		backup_restore=1
 		multi_instance=1
 		# This test is no longer necessary since the version 2.7 (PR: https://github.com/YunoHost/yunohost/pull/304), you can still do it if your app could be installed with this version.
@@ -29,7 +30,7 @@
 Email=
 Notification=none
 ;;; Upgrade options
-	; commit=
-		name=
+	; commit=2c82b25537bc09b99c1daeced8ca38fe9b1bae8b
+		name=3.5.11~ynh1
 		manifest_arg=domain=DOMAIN&is_public=1
 
