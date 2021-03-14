@@ -7,7 +7,6 @@ Type=simple
 User=__APP__
 Group=__APP__
 EnvironmentFile=__FINALPATH__/live/.env
-Environment=__ENV_PATH__
 WorkingDirectory=__FINALPATH__/live/
 ExecStart=/opt/rbenv/versions/__RUBY_VERSION__/bin/bundle exec puma -C config/puma.rb -p __PORT__ -e production
 StandardOutput=append:/var/log/__APP__/snweb.log
