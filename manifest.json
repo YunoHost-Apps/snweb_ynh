@@ -24,11 +24,6 @@
             {
                 "name": "domain",
                 "type": "domain",
-                "ask": {
-                    "en": "Choose a domain name for snweb",
-                    "fr": "Choisissez un domaine pour snweb",
-                    "de": "Wähle einen Domain Namen für snweb"
-                },
                 "example": "example.com"
             },
             {
@@ -36,11 +31,6 @@
                 "type": "boolean",
                 "help": {
                     "en": "A public application means that anyone can access this site."
-                },
-                "ask": {
-                    "en": "Is it a public application?",
-                    "fr": "Est-ce une application publique ?",
-                    "de": "Ist die Application Öffendlich?"
                 },
                 "default": false
             },
