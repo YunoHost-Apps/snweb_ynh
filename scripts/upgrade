@@ -19,7 +19,6 @@ app=$YNH_APP_INSTANCE_NAME
 
 domain=$(ynh_app_setting_get --app=$app --key=domain)
 path_url=$(ynh_app_setting_get --app=$app --key=path)
-is_public=$(ynh_app_setting_get --app=$app --key=is_public)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 port=$(ynh_app_setting_get --app=$app --key=port)
 snserver_domain=$(ynh_app_setting_get --app=$app --key=snserver_domain)
@@ -41,13 +40,11 @@ upgrade_type=$(ynh_check_app_version_changed)
 #=================================================
 ynh_script_progression --message="Ensuring downward compatibility..." --weight=1
 
-# Fix is_public as a boolean value
-if [ "$is_public" = "Yes" ]; then
-    ynh_app_setting_set --app=$app --key=is_public --value=1
-    is_public=1
-elif [ "$is_public" = "No" ]; then
-    ynh_app_setting_set --app=$app --key=is_public --value=0
-    is_public=0
+# Cleaning legacy permissions
+if ynh_legacy_permissions_exists; then
+    ynh_legacy_permissions_delete_all
+
+    ynh_app_setting_delete --app=$app --key=is_public
 fi
 
 # If final_path doesn't exist, create it
@@ -106,6 +103,7 @@ then
     git clone $SOURCE "$final_path/live" --quiet
     pushd "$final_path/live"
         git checkout $COMMIT --quiet
+        git submodule update --init --recursive --quiet
     popd
     # Restore files
     if [ -d $tmpdir/log ] ; then
@@ -138,6 +136,8 @@ ynh_system_user_create --username=$app --home_dir=$final_path
 ynh_script_progression --message="Installing Ruby... ( This may take a while... )"  --weight=100 #331
 
 ynh_install_ruby --ruby_version=$RUBY_VERSION
+/opt/rbenv/versions/$RUBY_VERSION/bin/gem update --system --no-document --quiet
+/opt/rbenv/versions/$RUBY_VERSION/bin/gem install bundler --no-document --quiet
 
 #=================================================
 # MODIFY A CONFIG FILE
@@ -166,18 +166,16 @@ if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
     ynh_script_progression --message="Building... ( This may take a while... )" --weight=100 #131
 
-    ENV_PATH="$ynh_node_load_PATH:/opt/rbenv/versions/$RUBY_VERSION/bin"
-
     chown -R $app: "$final_path"
 
     pushd "$final_path/live"
-        git submodule update --init --recursive --quiet
         ynh_use_nodejs
-        exec_as $app $ENV_PATH $ynh_npm --loglevel=error ci
-        env PATH=$ENV_PATH /opt/rbenv/versions/$RUBY_VERSION/bin/gem install bundler --quiet
-        env PATH=$ENV_PATH /opt/rbenv/versions/$RUBY_VERSION/bin/bundler install --quiet
-        exec_as $app $ENV_PATH $ynh_npm --loglevel=error run bundle
-        exec_as $app $ENV_PATH /opt/rbenv/versions/$RUBY_VERSION/bin/bundle exec rails assets:precompile --quiet
+        exec_as $app /opt/rbenv/versions/$RUBY_VERSION/bin/bundle config set --local path 'vendor/bundle'
+        exec_as $app /opt/rbenv/versions/$RUBY_VERSION/bin/bundle config set with 'development'
+        exec_as $app /opt/rbenv/versions/$RUBY_VERSION/bin/bundle install -j$(getconf _NPROCESSORS_ONLN) --quiet
+        exec_as $app env PATH=$ynh_node_load_PATH yarn install --pure-lockfile
+        exec_as $app env PATH=$ynh_node_load_PATH yarn bundle
+        exec_as $app /opt/rbenv/versions/$RUBY_VERSION/bin/bundle exec rails assets:precompile --quiet
     popd
 fi
 
@@ -189,7 +187,6 @@ ynh_script_progression --message="Upgrading systemd configuration..." --weight=4
 # Create a dedicated systemd config
 ynh_add_systemd_config --others_var="\
     port \
-    ENV_PATH \
     RUBY_VERSION \
 "
 
@@ -257,18 +254,6 @@ sleep 10
 
 # Create a dedicated fail2ban config
 #ynh_add_fail2ban_config --logpath="/var/log/nginx/${domain}-error.log" --failregex="Regex to match into the log for a failed login"
-
-#=================================================
-# SETUP SSOWAT
-#=================================================
-ynh_script_progression --message="Upgrading SSOwat configuration..." --weight=2
-
-# Make app public if necessary
-if [ $is_public -eq 1 ]
-then
-    # Create the visitors permission if needed
-    ynh_permission_update --permission "main" --add "visitors"
-fi
 
 #=================================================
 # RELOAD NGINX

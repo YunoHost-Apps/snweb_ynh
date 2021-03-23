@@ -53,7 +53,6 @@ ynh_script_progression --message="Storing installation settings..." --weight=2
 
 ynh_app_setting_set --app=$app --key=domain --value=$domain
 ynh_app_setting_set --app=$app --key=path --value=$path_url
-ynh_app_setting_set --app=$app --key=is_public --value=$is_public
 ynh_app_setting_set --app=$app --key=snserver_domain --value=$snserver_domain
 
 #=================================================
@@ -61,7 +60,7 @@ ynh_app_setting_set --app=$app --key=snserver_domain --value=$snserver_domain
 #=================================================
 # FIND AND OPEN A PORT
 #=================================================
-ynh_script_progression --message="Configuring firewall..." --weight=1
+ynh_script_progression --message="Finding an available port..." --weight=1
 
 # Find an available port
 port=$(ynh_find_port --port=3000)
@@ -85,6 +84,7 @@ ynh_script_progression --message="Setting up source files..." --weight=16
 git clone $SOURCE "$final_path/live" --quiet
 pushd "$final_path/live"
     git checkout $COMMIT --quiet
+    git submodule update --init --recursive --quiet
 popd
 
 #=================================================
@@ -111,6 +111,8 @@ ynh_system_user_create --username=$app --home_dir=$final_path
 ynh_script_progression --message="Installing Ruby... ( This may take a while... )" --weight=100 #212
 
 ynh_install_ruby --ruby_version=$RUBY_VERSION
+/opt/rbenv/versions/$RUBY_VERSION/bin/gem update --system --no-document --quiet
+/opt/rbenv/versions/$RUBY_VERSION/bin/gem install bundler --no-document --quiet
 
 #=================================================
 # MODIFY A CONFIG FILE
@@ -135,18 +137,16 @@ ynh_replace_string --match_string="SF_DEFAULT_SERVER=http://localhost:3000" --re
 #=================================================
 ynh_script_progression --message="Building... ( This may take a while... )" --weight=100 #497
 
-ENV_PATH="$ynh_node_load_PATH:/opt/rbenv/versions/$RUBY_VERSION/bin"
-
 chown -R $app: "$final_path"
 
 pushd "$final_path/live"
-    git submodule update --init --recursive --quiet
     ynh_use_nodejs
-    exec_as $app $ENV_PATH $ynh_npm --loglevel=error ci
-    env PATH=$ENV_PATH /opt/rbenv/versions/$RUBY_VERSION/bin/gem install bundler --quiet
-    env PATH=$ENV_PATH /opt/rbenv/versions/$RUBY_VERSION/bin/bundler install --quiet
-    exec_as $app $ENV_PATH $ynh_npm --loglevel=error run bundle
-    exec_as $app $ENV_PATH /opt/rbenv/versions/$RUBY_VERSION/bin/bundle exec rails assets:precompile --quiet
+    exec_as $app /opt/rbenv/versions/$RUBY_VERSION/bin/bundle config set --local path 'vendor/bundle'
+    exec_as $app /opt/rbenv/versions/$RUBY_VERSION/bin/bundle config set with 'development'
+    exec_as $app /opt/rbenv/versions/$RUBY_VERSION/bin/bundle install -j$(getconf _NPROCESSORS_ONLN) --quiet
+    exec_as $app env PATH=$ynh_node_load_PATH yarn install --pure-lockfile
+    exec_as $app env PATH=$ynh_node_load_PATH yarn bundle
+    exec_as $app /opt/rbenv/versions/$RUBY_VERSION/bin/bundle exec rails assets:precompile --quiet
 popd
 
 #=================================================
@@ -158,7 +158,6 @@ ynh_script_progression --message="Configuring a systemd service..." --weight=3
 # Create a dedicated systemd config
 ynh_add_systemd_config --others_var="\
     port \
-    ENV_PATH \
     RUBY_VERSION \
 "
 
@@ -229,8 +228,9 @@ ynh_script_progression --message="Configuring SSOwat..." --weight=2
 # Make app public if necessary
 if [ $is_public -eq 1 ]
 then
-    # Create the visitors permission if needed
-    ynh_permission_update --permission "main" --add "visitors"
+    # Everyone can access the app.
+    # The "main" permission is automatically created before the install script.
+    ynh_permission_update --permission="main" --add="visitors"
 fi
 
 #=================================================

@@ -5,32 +5,25 @@
     "description": {
         "en": "The Standard Notes Web App. An end-to-end encrypted note-taking app. Web, Mac, Windows, Linux, iOS, and Android."
     },
-    "version": "3.5.11~ynh1",
+    "version": "3.6.2~ynh1",
     "url": "https://github.com/standardnotes/web",
-    "license": "free",
+    "license": "AGPL-3.0-or-later",
     "maintainer": {
         "name": "Fabian Wilkens",
-        "email": "wilkens.fabian+github@gmail.com",
-        "url": "https://github.com/FabianWilkens/snweb_ynh"
+        "email": "46000361+FabianWilkens@users.noreply.github.com"
     },
     "requirements": {
-        "yunohost": ">= 4.0"
+        "yunohost": ">= 4.1.2"
     },
     "multi_instance": true,
     "services": [
-        "nginx",
-        "mysql"
+        "nginx"
     ],
     "arguments": {
         "install" : [
             {
                 "name": "domain",
                 "type": "domain",
-                "ask": {
-                    "en": "Choose a domain name for snweb",
-                    "fr": "Choisissez un domaine pour snweb",
-                    "de": "Wähle einen Domain Namen für snweb"
-                },
                 "example": "example.com"
             },
             {
@@ -38,11 +31,6 @@
                 "type": "boolean",
                 "help": {
                     "en": "A public application means that anyone can access this site."
-                },
-                "ask": {
-                    "en": "Is it a public application?",
-                    "fr": "Est-ce une application publique ?",
-                    "de": "Ist die Application Öffendlich?"
                 },
                 "default": false
             },

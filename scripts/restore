@@ -88,27 +88,8 @@ ynh_install_app_dependencies $pkg_dependencies
 ynh_install_nodejs --nodejs_version=$NODEJS_VERSION
 ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
 ynh_install_ruby --ruby_version=$RUBY_VERSION
-
-
-#=================================================
-# BUILDING 
-#=================================================
-ynh_script_progression --message="Reinstalling $app... ( This may take a while... )" --weight=100 #222
-
-
-ENV_PATH="$ynh_node_load_PATH:/opt/rbenv/versions/$RUBY_VERSION/bin"
-
-chown -R $app: "$final_path"
-
-pushd "$final_path/live"
-    git submodule update --init --recursive --quiet
-    ynh_use_nodejs
-    exec_as $app $ENV_PATH $ynh_npm --loglevel=error ci
-    env PATH=$ENV_PATH /opt/rbenv/versions/$RUBY_VERSION/bin/gem install bundler --quiet
-    env PATH=$ENV_PATH /opt/rbenv/versions/$RUBY_VERSION/bin/bundler install --quiet
-    exec_as $app $ENV_PATH $ynh_npm --loglevel=error run bundle
-    exec_as $app $ENV_PATH /opt/rbenv/versions/$RUBY_VERSION/bin/bundle exec rails assets:precompile --quiet
-popd
+/opt/rbenv/versions/$RUBY_VERSION/bin/gem update --system --no-document --quiet
+/opt/rbenv/versions/$RUBY_VERSION/bin/gem install bundler --no-document --quiet
 
 #=================================================
 # RESTORE USER RIGHTS
