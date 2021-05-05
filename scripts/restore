@@ -99,20 +99,16 @@ popd
 #=================================================
 
 # Restore permissions on app files
-chown -R root:root "$final_path"
-chown $app: "$final_path"
-chown $app: "$final_path/live"
-mkdir -p $app: "$final_path/.config"
-chown $app: "$final_path/.config"
-mkdir -p $app: "$final_path/.cache"
-chown $app: "$final_path/.cache"
+chmod 750 "$final_path"
+chmod -R o-rwx "$final_path"
+chown -R $app: "$final_path"
+
 mkdir -p "$final_path/live/log"
 chown -R $app: "$final_path/live/log"
 mkdir -p "$final_path/live/public"
 chown -R $app: "$final_path/live/public"
 mkdir -p "$final_path/live/tmp"
 chown -R $app: "$final_path/live/tmp"
-chown $app: "$final_path/live/Gemfile.lock"
 
 mkdir -p "/var/log/$app"
 chown -R $app: "/var/log/$app"
