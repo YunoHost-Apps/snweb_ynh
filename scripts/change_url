@@ -132,6 +132,8 @@ ynh_systemd_action --service_name=nginx --action=reload
 #=================================================
 ynh_script_progression --message="Waiting for service..."  --weight=1
 
+domain=$new_domain
+path_url=$new_path
 is_service_ready
 
 #=================================================
