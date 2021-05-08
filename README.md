@@ -1,7 +1,11 @@
 # Standard Notes Web App for YunoHost
 
 [![Integration level](https://dash.yunohost.org/integration/snweb.svg)](https://dash.yunohost.org/appci/app/snweb)  
+![Status](https://ci-apps.yunohost.org/ci/badges/snweb.status.svg)
+![Maintained](https://ci-apps.yunohost.org/ci/badges/snweb.maintain.svg)
+
 [![Install snweb with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=snweb)
+
 
 > *This package allow you to install snweb quickly and simply on a YunoHost server.  
 If you don't have YunoHost, please see [here](https://yunohost.org/#/install) to know how to install and enjoy it.*
@@ -13,7 +17,7 @@ A safe and private place for your life's work.
 
 Standard Notes is a simple and private notes app available on most platforms, including Web, Mac, Windows, Linux, iOS, and Android. It focuses on simplicity, and encrypts data locally before it ever touches a cloud. This means no one can read your notes but you (not even us).
 
-**Shipped version:** 3.6.2
+**Shipped version:** 3.6.8
 * Apps available for free. https://standardnotes.org/ 
 * Desktop (Windows, Mac, Linux)
 * Mobile (Android and iOS)
@@ -50,8 +54,9 @@ Can the app be used by multiple users?	Yes
 
 #### Supported architectures
 
- * x86-64b - [![Build Status](https://ci-apps.yunohost.org/ci/logs/snweb%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/snweb/)
- * ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/snweb%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/snweb/)
+ * x86-64b - [![Build Status](https://ci-apps.yunohost.org/ci/logs/snweb.svg)](https://ci-apps.yunohost.org/ci/apps/snweb/)
+ * ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/snwebvg)](https://ci-apps-arm.yunohost.org/ci/apps/snweb/)
+
 
 ## Links
 

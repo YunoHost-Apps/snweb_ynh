@@ -119,7 +119,6 @@ ynh_replace_string --match_string="APP_HOST=http://localhost:3001" --replace_str
 ynh_script_progression --message="Starting a systemd service..." --weight=1
 
 ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log"
-sleep 10
 
 #=================================================
 # RELOAD NGINX
@@ -127,6 +126,15 @@ sleep 10
 ynh_script_progression --message="Reloading nginx web server..." --weight=1
 
 ynh_systemd_action --service_name=nginx --action=reload
+
+#=================================================
+# WAITING FOR SERVICE
+#=================================================
+ynh_script_progression --message="Waiting for service..."  --weight=1
+
+domain=$new_domain
+path_url=$new_path
+is_service_ready
 
 #=================================================
 # END OF SCRIPT
