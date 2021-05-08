@@ -1,6 +1,6 @@
 # Standard Notes Web App for YunoHost
 
-[![Integration level](https://dash.yunohost.org/integration/snweb.svg)](https://dash.yunohost.org/appci/app/snweb)  
+[![Integration level](https://dash.yunohost.org/integration/snweb.svg)](https://dash.yunohost.org/appci/app/snweb)
 ![Status](https://ci-apps.yunohost.org/ci/badges/snweb.status.svg)
 ![Maintained](https://ci-apps.yunohost.org/ci/badges/snweb.maintain.svg)
 
