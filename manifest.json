@@ -7,13 +7,23 @@
     },
     "version": "3.6.8~ynh1",
     "url": "https://github.com/standardnotes/web",
+	"version": "3.22.8~ynh2",
+    "url": "https://github.com/standardnotes/syncing-server",
+	"upstream": {
+        "license": "AGPL-3.0-or-later",
+        "website": "https://standardnotes.org/",
+        "demo": "https://standardnotes.org/demo",
+        "admindoc": "https://docs.standardnotes.org/",
+        "userdoc": "https://standardnotes.org/help",
+        "code": "https://github.com/standardnotes/web"
+    },
     "license": "AGPL-3.0-or-later",
     "maintainer": {
         "name": "Fabian Wilkens",
         "email": "46000361+FabianWilkens@users.noreply.github.com"
     },
     "requirements": {
-        "yunohost": ">= 4.1.7"
+        "yunohost": ">= 4.2.4"
     },
     "multi_instance": true,
     "services": [
