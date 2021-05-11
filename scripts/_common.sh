@@ -12,7 +12,7 @@ pkg_dependencies="\
         git \
         "
 
-RUBY_VERSION="2.7.2"
+RUBY_VERSION="2.7.3"
 NODEJS_VERSION="15.11.0"
 
 SOURCE="https://github.com/standardnotes/web"
