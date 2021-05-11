@@ -94,7 +94,7 @@ popd
 ynh_script_progression --message="Configuring nginx web server..." --weight=3
 
 # Create a dedicated nginx config
-ynh_add_nginx_config "port"
+ynh_add_nginx_config
 
 #=================================================
 # CREATE DEDICATED USER
@@ -159,10 +159,7 @@ ynh_script_progression --message="Configuring a systemd service..." --weight=3
 
 
 # Create a dedicated systemd config
-ynh_add_systemd_config --others_var="\
-    port \
-    RBENV_ROOT \
-"
+ynh_add_systemd_config
 
 #=================================================
 # STORE THE CONFIG FILE CHECKSUM
