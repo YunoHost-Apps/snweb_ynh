@@ -53,6 +53,24 @@ if [ -z "$final_path" ]; then
     ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 fi
 
+if ynh_compare_current_package_version --comparison lt --version "3.6.8~ynh1"
+then
+    # Add variables to .env config file
+    echo -e "\
+\n# Sub-URI\
+\nRAILS_RELATIVE_URL_ROOT=/\
+" >> "$config_file"
+
+    # Apply Patch
+    if [ -f "$YNH_CWD/../sources/patches/app-00-add-path-url.patch" ]
+    then
+        pushd "$final_path/live"
+            patch --strip=1 < "$YNH_CWD/../sources/patches/app-00-add-path-url.patch"
+        popd
+    fi
+fi
+
+
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================

@@ -25,8 +25,7 @@ ynh_abort_if_errors
 #=================================================
 
 domain=$YNH_APP_ARG_DOMAIN
-#path_url=$YNH_APP_ARG_PATH
-path_url="/"
+path_url=$YNH_APP_ARG_PATH
 is_public=$YNH_APP_ARG_IS_PUBLIC
 app=$YNH_APP_INSTANCE_NAME
 snserver_domain=$YNH_APP_ARG_SNSERVER_DOMAIN
@@ -88,6 +87,14 @@ pushd "$final_path/live"
     git submodule update --init --recursive --quiet
 popd
 
+# Apply Patch
+if [ -f "$YNH_CWD/../sources/patches/app-00-add-path-url.patch" ]
+then
+    pushd "$final_path/live"
+        patch --strip=1 < "$YNH_CWD/../sources/patches/app-00-add-path-url.patch"
+    popd
+fi
+
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
@@ -134,6 +141,7 @@ if [ "$snserver_domain" = "" ]; then
     snserver_domain="sync.standardnotes.org"
 fi
 ynh_replace_string --match_string="SF_DEFAULT_SERVER=http://localhost:3000" --replace_string="SF_DEFAULT_SERVER=https://$snserver_domain" --target_file="$config_file"
+ynh_replace_string --match_string="RAILS_RELATIVE_URL_ROOT=.*$" --replace_string="RAILS_RELATIVE_URL_ROOT=$path_url" --target_file="$config_file"
 
 #=================================================
 # BUILDING 
