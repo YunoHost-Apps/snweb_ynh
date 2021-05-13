@@ -17,8 +17,7 @@ old_domain=$YNH_APP_OLD_DOMAIN
 old_path=$YNH_APP_OLD_PATH
 
 new_domain=$YNH_APP_NEW_DOMAIN
-#new_path=$YNH_APP_NEW_PATH
-new_path="/"
+new_path=$YNH_APP_NEW_PATH
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -89,7 +88,7 @@ then
     domain="$old_domain"
     path_url="$new_path"
     # Create a dedicated nginx config
-    ynh_add_nginx_config "port"
+    ynh_add_nginx_config
 fi
 
 # Change the domain for nginx
@@ -108,6 +107,7 @@ fi
 
 config_file="$final_path/live/.env"
 ynh_replace_string --match_string="APP_HOST=http://localhost:3001" --replace_string="APP_HOST=https://$new_domain${new_path%/}" --target_file="$config_file"
+ynh_replace_string --match_string="RAILS_RELATIVE_URL_ROOT=$old_path" --replace_string="RAILS_RELATIVE_URL_ROOT=$new_path" --target_file="$config_file"
 
 #=================================================
 
@@ -119,7 +119,6 @@ ynh_replace_string --match_string="APP_HOST=http://localhost:3001" --replace_str
 ynh_script_progression --message="Starting a systemd service..." --weight=1
 
 ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log"
-sleep 10
 
 #=================================================
 # RELOAD NGINX
@@ -127,6 +126,15 @@ sleep 10
 ynh_script_progression --message="Reloading nginx web server..." --weight=1
 
 ynh_systemd_action --service_name=nginx --action=reload
+
+#=================================================
+# WAITING FOR SERVICE
+#=================================================
+ynh_script_progression --message="Waiting for service..."  --weight=1
+
+domain=$new_domain
+path_url=$new_path
+is_service_ready
 
 #=================================================
 # END OF SCRIPT
