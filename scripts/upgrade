@@ -55,7 +55,7 @@ if [ -z "$final_path" ]; then
     ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 fi
 
-if ynh_compare_current_package_version --comparison lt --version "3.6.8~ynh1"
+if ynh_compare_current_package_version --comparison lt --version "3.6.8~ynh2"
 then
     # Add variables to .env config file
     echo -e "\
