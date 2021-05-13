@@ -23,6 +23,8 @@ final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 port=$(ynh_app_setting_get --app=$app --key=port)
 snserver_domain=$(ynh_app_setting_get --app=$app --key=snserver_domain)
 
+config_file="$final_path/live/.env"
+
 #=================================================
 # CHECK VERSION
 #=================================================
@@ -162,7 +164,6 @@ popd
 #=================================================
 # MODIFY A CONFIG FILE
 #=================================================
-config_file="$final_path/live/.env"
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
     ynh_script_progression --message="Modifying a config file..." --weight=2
