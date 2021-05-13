@@ -13,7 +13,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 
 
-**Version incluse:** 3.22.8~ynh2
+**Version incluse:** 3.6.8~ynh2
 
 **Démo:** https://standardnotes.org/demo
 
