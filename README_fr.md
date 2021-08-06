@@ -1,30 +1,25 @@
 # Standard Notes pour YunoHost
 
-[![Niveau d'intégration](https://dash.yunohost.org/integration/snweb.svg)](https://dash.yunohost.org/appci/app/snweb) ![](https://ci-apps.yunohost.org/ci/badges/snweb.status.svg)  ![](https://ci-apps.yunohost.org/ci/badges/snweb.maintain.svg)
-[![Installer snweb avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=snweb)
+[![Niveau d'intégration](https://dash.yunohost.org/integration/snweb.svg)](https://dash.yunohost.org/appci/app/snweb) ![](https://ci-apps.yunohost.org/ci/badges/snweb.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/snweb.maintain.svg)  
+[![Installer Standard Notes avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=snweb)
 
 *[Read this readme in english.](./README.md)*
 *[Lire ce readme en français.](./README_fr.md)*
 
-> *This package allows you to install snweb quickly and simply on a YunoHost server.
-If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/install) to learn how to install it.*
+> *Ce package vous permet d'installer Standard Notes rapidement et simplement sur un serveur YunoHost.
+Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour savoir comment l'installer et en profiter.*
 
 ## Vue d'ensemble
 
 
 
-**Version incluse:** 3.6.8~ynh2
+**Version incluse :** 3.6.8~ynh2
 
-**Démo:** https://standardnotes.org/demo
-
+**Démo :** https://standardnotes.org/demo
 
 ## Captures d'écran
 
-
-   ![](./doc/screenshots/standard_notes.png)
-
-
-
+![](./doc/screenshots/standard_notes.png)
 
 ## Avertissements / informations importantes
 
@@ -41,16 +36,14 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
     * The config-file is stored under "/opt/yunohost/$app/live/.env"
     * You can find additional config features under https://your-domain.tld/yunohost/admin/#/apps/$app/config-panel
 
-
-
 ## Documentations et ressources
 
-* Site official de l'app : https://standardnotes.org/
-* Documentation officielle utilisateur: https://standardnotes.org/help
-* Documentation officielle de l'admin: https://docs.standardnotes.org/
-* Dépôt de code officiel de l'app:  https://github.com/standardnotes/web
-* Documentation YunoHost pour cette app: https://yunohost.org/app_snweb
-* Signaler un bug: https://github.com/YunoHost-Apps/snweb_ynh/issues
+* Site officiel de l'app : https://standardnotes.org/
+* Documentation officielle utilisateur : https://standardnotes.org/help
+* Documentation officielle de l'admin : https://docs.standardnotes.org/
+* Dépôt de code officiel de l'app : https://github.com/standardnotes/web
+* Documentation YunoHost pour cette app : https://yunohost.org/app_snweb
+* Signaler un bug : https://github.com/YunoHost-Apps/snweb_ynh/issues
 
 ## Informations pour les développeurs
 
@@ -59,8 +52,8 @@ Merci de faire vos pull request sur la [branche testing](https://github.com/Yuno
 Pour essayer la branche testing, procédez comme suit.
 ```
 sudo yunohost app install https://github.com/YunoHost-Apps/snweb_ynh/tree/testing --debug
-or
+ou
 sudo yunohost app upgrade snweb -u https://github.com/YunoHost-Apps/snweb_ynh/tree/testing --debug
 ```
 
-**Plus d'infos sur le packaging d'applications:** https://yunohost.org/packaging_apps
+**Plus d'infos sur le packaging d'applications :** https://yunohost.org/packaging_apps
