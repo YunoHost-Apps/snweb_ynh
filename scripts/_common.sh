@@ -9,6 +9,7 @@ pkg_dependencies="\
         zlib1g-dev \
         libssl-dev \
         libjemalloc-dev \
+        python2-minimal \
         git \
         "
 
