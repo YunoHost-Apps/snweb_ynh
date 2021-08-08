@@ -17,7 +17,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 The Standard Notes Web App. An end-to-end encrypted note-taking app. Web, Mac, Windows, Linux, iOS, and Android.
 
-**Shipped version:** 3.6.8~ynh2
+**Shipped version:** 3.8.18~ynh1
 
 **Demo:** https://standardnotes.org/demo
 
@@ -33,12 +33,11 @@ The Standard Notes Web App. An end-to-end encrypted note-taking app. Web, Mac, W
     * The app requires at least 80MB of RAM to work properly.
     * The app requires around 1000MB of disk.
     * A dedicated domain is requierd if you want to use extensions.
-      notes.your-domain.tld/ -> Extension Manager is working
-      your-domain.tld/notes/ -> Extension Manager is not working
+        * notes.your-domain.tld/ -> Extension Manager is working
+        * your-domain.tld/notes/ -> Extension Manager is not working
 
 * Other infos that people should be aware of, such as:
     * The config-file is stored under "/opt/yunohost/$app/live/.env"
-    * You can find additional config features under https://your-domain.tld/yunohost/admin/#/apps/$app/config-panel
 
 ## Documentation and resources
 
