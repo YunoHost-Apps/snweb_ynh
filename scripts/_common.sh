@@ -17,7 +17,7 @@ RUBY_VERSION="2.7.3"
 NODEJS_VERSION="15.11.0"
 
 SOURCE="https://github.com/standardnotes/web"
-COMMIT="bc855b0a1722d2f4ac534ea4d4035299acb7a40a"
+COMMIT="6408941c07effefc99c6622a8e599d1cab98cd09"
 
 #=================================================
 # PERSONAL HELPERS
