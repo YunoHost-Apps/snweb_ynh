@@ -28,6 +28,9 @@ domain=$YNH_APP_ARG_DOMAIN
 path_url=$YNH_APP_ARG_PATH
 is_public=$YNH_APP_ARG_IS_PUBLIC
 snserver_domain=$YNH_APP_ARG_SNSERVER_DOMAIN
+if [ -z "$snserver_domain" ]; then
+	snserver_domain="api.standardnotes.com"
+fi
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -141,22 +144,11 @@ popd
 ynh_script_progression --message="Adding a configuration file..." --weight=1
 
 config_file="$final_path/live/.env"
-cp -f ../conf/env.sample $config_file
+secret_key_base=$(ynh_string_random --length=48 | base64)
 
-ynh_replace_string --match_string="RAILS_ENV=development" --replace_string="RAILS_ENV=production" --target_file="$config_file"
-ynh_replace_string --match_string="PORT=3001" --replace_string="PORT=$port" --target_file="$config_file"
-secret_key=$(ynh_string_random --length=48 | base64)
-ynh_replace_string --match_string="SECRET_KEY_BASE=test" --replace_string="SECRET_KEY_BASE=$secret_key" --target_file="$config_file"
-ynh_replace_string --match_string="APP_HOST=http://localhost:3001" --replace_string="APP_HOST=https://$domain${path_url%/}" --target_file="$config_file"
-if [ "$snserver_domain" = "" ]; then 
-    snserver_domain="sync.standardnotes.org"
-fi
-ynh_replace_string --match_string="SF_DEFAULT_SERVER=http://localhost:3000" --replace_string="SF_DEFAULT_SERVER=https://$snserver_domain" --target_file="$config_file"
-ynh_replace_string --match_string="RAILS_RELATIVE_URL_ROOT=.*$" --replace_string="RAILS_RELATIVE_URL_ROOT=$path_url" --target_file="$config_file"
+ynh_app_setting_set --app=$app --key=secret_key_base --value=$secret_key_base
 
-# Calculate and store the config file checksum into the app settings
-ynh_store_file_checksum --file="$config_file"
-ynh_store_file_checksum --file="/etc/nginx/conf.d/$domain.d/$app.conf"
+ynh_add_config --template="env.sample" --destination="$config_file"
 
 #=================================================
 # BUILDING 
