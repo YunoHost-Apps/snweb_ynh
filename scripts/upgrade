@@ -22,6 +22,7 @@ path_url=$(ynh_app_setting_get --app=$app --key=path)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 port=$(ynh_app_setting_get --app=$app --key=port)
 snserver_domain=$(ynh_app_setting_get --app=$app --key=snserver_domain)
+secret_key_base=$(ynh_app_setting_get --app=$app --key=secret_key_base)
 
 config_file="$final_path/live/.env"
 
@@ -73,21 +74,12 @@ if [ -z "$final_path" ]; then
 	ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 fi
 
-if ynh_compare_current_package_version --comparison lt --version "3.6.8~ynh2"
-then
-	# Add variables to .env config file
-	echo -e "\
-\n# Sub-URI\
-\nRAILS_RELATIVE_URL_ROOT=/\
-" >> "$config_file"
+if [ -z "$snserver_domain" ]; then
+	snserver_domain="api.standardnotes.com"
+fi
 
-	# Apply Patch
-	if [ -f "$YNH_CWD/../sources/patches/app-00-add-path-url.patch" ]
-	then
-		pushd "$final_path/live"
-			patch --strip=1 < "$YNH_CWD/../sources/patches/app-00-add-path-url.patch"
-		popd
-	fi
+if [ -z "$secret_key_base" ]; then
+	secret_key_base=$(ynh_string_random --length=48 | base64)
 fi
 
 #=================================================
@@ -106,11 +98,6 @@ if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
 	ynh_script_progression --message="Upgrading source files..." --weight=17
 
-	# Backup files to keep
-	tmpdir=$(mktemp -d)
-	if [ -d $final_path/live/log ] ; then
-		cp -Rp $final_path/live/log $tmpdir
-	fi
 	# Remove destination directory
 	ynh_secure_remove --file=$final_path
 	# Download
@@ -120,9 +107,12 @@ then
 		git checkout $COMMIT --quiet
 		git submodule update --init --recursive --quiet
 	popd
-	# Restore files
-	if [ -d $tmpdir/log ] ; then
-		cp -Rp $tmpdir/log "$final_path/live"
+	# Apply Patch
+	if [ -f "$YNH_CWD/../sources/patches/app-00-add-path-url.patch" ]
+	then
+		pushd "$final_path/live"
+			patch --strip=1 < "$YNH_CWD/../sources/patches/app-00-add-path-url.patch"
+		popd
 	fi
 fi
 
@@ -173,24 +163,9 @@ popd
 # UPDATE A CONFIG FILE
 #=================================================
 
-if [ "$upgrade_type" == "UPGRADE_APP" ]
-then
-	ynh_script_progression --message="Updating a configuration file..." --weight=2
+ynh_script_progression --message="Updating a configuration file..." --weight=2
 
-	cp -f ../conf/env.sample $config_file
-	ynh_replace_string --match_string="RAILS_ENV=development" --replace_string="RAILS_ENV=production" --target_file="$config_file"
-	ynh_replace_string --match_string="PORT=3001" --replace_string="PORT=$port" --target_file="$config_file"
-	secret_key=$(ynh_string_random --length=48 | base64)
-	ynh_replace_string --match_string="SECRET_KEY_BASE=test" --replace_string="SECRET_KEY_BASE=$secret_key" --target_file="$config_file"
-	ynh_replace_string --match_string="APP_HOST=http://localhost:3001" --replace_string="APP_HOST=https://$domain${path_url%/}" --target_file="$config_file"
-	if [ "$snserver_domain" = "" ]; then
-		snserver_domain="sync.standardnotes.org"
-	fi
-	ynh_replace_string --match_string="SF_DEFAULT_SERVER=http://localhost:3000" --replace_string="SF_DEFAULT_SERVER=https://$snserver_domain" --target_file="$config_file"
-fi
-
-ynh_store_file_checksum --file="$config_file"
-ynh_store_file_checksum --file="/etc/nginx/conf.d/$domain.d/$app.conf"
+ynh_add_config --template="env.sample" --destination="$config_file"
 
 #=================================================
 # BUILDING 

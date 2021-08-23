@@ -13,7 +13,7 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 
 
-**Version incluse :** 3.6.8~ynh2
+**Version incluse :** 3.8.18~ynh1
 
 **Démo :** https://standardnotes.org/demo
 
@@ -29,12 +29,11 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
     * The app requires at least 80MB of RAM to work properly.
     * The app requires around 1000MB of disk.
     * A dedicated domain is requierd if you want to use extensions.
-      notes.your-domain.tld/ -> Extension Manager is working
-      your-domain.tld/notes/ -> Extension Manager is not working
+        * notes.your-domain.tld/ -> Extension Manager is working
+        * your-domain.tld/notes/ -> Extension Manager is not working
 
 * Other infos that people should be aware of, such as:
     * The config-file is stored under "/opt/yunohost/$app/live/.env"
-    * You can find additional config features under https://your-domain.tld/yunohost/admin/#/apps/$app/config-panel
 
 ## Documentations et ressources
 
