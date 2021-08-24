@@ -29,6 +29,8 @@ ynh_script_progression --message="Loading installation settings..." --weight=1
 # Needed for helper "ynh_add_nginx_config"
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 port=$(ynh_app_setting_get --app=$app --key=port)
+snserver_domain=$(ynh_app_setting_get --app=$app --key=snserver_domain)
+secret_key_base=$(ynh_app_setting_get --app=$app --key=secret_key_base)
 
 #=================================================
 # BACKUP BEFORE CHANGE URL THEN ACTIVE TRAP
@@ -106,8 +108,11 @@ fi
 #=================================================
 
 config_file="$final_path/live/.env"
-ynh_replace_string --match_string="APP_HOST=http://localhost:3001" --replace_string="APP_HOST=https://$new_domain${new_path%/}" --target_file="$config_file"
-ynh_replace_string --match_string="RAILS_RELATIVE_URL_ROOT=$old_path" --replace_string="RAILS_RELATIVE_URL_ROOT=$new_path" --target_file="$config_file"
+
+domain=$new_domain
+path_url=$new_path
+
+ynh_add_config --template="env.sample" --destination="$config_file"
 
 #=================================================
 # GENERIC FINALISATION
