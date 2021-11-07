@@ -50,7 +50,7 @@ fi
 #=================================================
 
 filename="scripts/_common.sh"
-sed -e 's/COMMIT=".*"$/COMMIT="'$commit'"/g' $filename
+sed -i 's/COMMIT=".*"$/COMMIT="'$commit'"/g' $filename
 
 #=================================================
 # SPECIFIC UPDATE STEPS
