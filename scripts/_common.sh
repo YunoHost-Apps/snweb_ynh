@@ -19,6 +19,8 @@ NODEJS_VERSION="15.11.0"
 SOURCE="https://github.com/standardnotes/web"
 COMMIT="e856ce7bfd3a7b357544e43ca343b1ec861debb3"
 
+node_max_old_space_size=2048
+
 #=================================================
 # PERSONAL HELPERS
 #=================================================
