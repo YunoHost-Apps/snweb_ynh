@@ -5,7 +5,7 @@
     "description": {
         "en": "The Standard Notes Web App. An end-to-end encrypted note-taking app. Web, Mac, Windows, Linux, iOS, and Android."
     },
-    "version": "3.8.25~ynh1",
+    "version": "3.8.25~ynh2",
     "url": "https://github.com/standardnotes/web",
     "upstream": {
         "license": "AGPL-3.0-or-later",
@@ -31,8 +31,7 @@
         "install": [
             {
                 "name": "domain",
-                "type": "domain",
-                "example": "example.com"
+                "type": "domain"
             },
             {
                 "name": "path",
