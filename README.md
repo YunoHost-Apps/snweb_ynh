@@ -15,7 +15,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 ## Overview
 
-The Standard Notes Web App. An end-to-end encrypted note-taking app. Web, Mac, Windows, Linux, iOS, and Android.
+Application de prise de notes chiffrée
 
 **Shipped version:** 3.8.25~ynh2
 
