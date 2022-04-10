@@ -15,7 +15,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 ## Overview
 
-Application de prise de notes chiffrées
+End-to-end encrypted note-taking app
 
 **Shipped version:** 10.17.0~ynh1
 

@@ -11,7 +11,7 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 ## Vue d'ensemble
 
-
+Application de prise de notes chiffrées
 
 **Version incluse :** 10.17.0~ynh1
 
