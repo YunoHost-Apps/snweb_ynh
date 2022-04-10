@@ -17,7 +17,7 @@ RUBY_VERSION="2.7.3"
 NODEJS_VERSION="16"
 
 SOURCE="https://github.com/standardnotes/web"
-COMMIT="90fcac61e0ed58e875648951fd4c257cd77a4165"
+COMMIT="5735ec38f67b42805962c8c7e43b8aea2a65ba4e"
 
 node_max_old_space_size=2048
 
