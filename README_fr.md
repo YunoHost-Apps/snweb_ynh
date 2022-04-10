@@ -13,7 +13,7 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 
 
-**Version incluse :** 3.8.25~ynh2
+**Version incluse :** 10.17.0~ynh1
 
 **Démo :** https://standardnotes.org/demo
 

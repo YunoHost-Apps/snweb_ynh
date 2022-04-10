@@ -15,9 +15,9 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 ## Overview
 
-Application de prise de notes chiffrée
+Application de prise de notes chiffrées
 
-**Shipped version:** 3.8.25~ynh2
+**Shipped version:** 10.17.0~ynh1
 
 **Demo:** https://standardnotes.org/demo
 
