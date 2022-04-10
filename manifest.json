@@ -3,9 +3,10 @@
     "id": "snweb",
     "packaging_format": 1,
     "description": {
-        "en": "The Standard Notes Web App. An end-to-end encrypted note-taking app. Web, Mac, Windows, Linux, iOS, and Android."
+        "en": "End-to-end encrypted note-taking app",
+        "fr": "Application de prise de notes chiffrées"
     },
-    "version": "3.8.25~ynh2",
+    "version": "10.17.0~ynh1",
     "url": "https://github.com/standardnotes/web",
     "upstream": {
         "license": "AGPL-3.0-or-later",
@@ -21,7 +22,7 @@
         "email": "46000361+FabianWilkens@users.noreply.github.com"
     },
     "requirements": {
-        "yunohost": ">= 4.3"
+        "yunohost": ">= 4.3.0"
     },
     "multi_instance": true,
     "services": [
@@ -39,7 +40,7 @@
                 "example": "/notes",
                 "default": "/",
                 "help": {
-                    "en": "You can use extensions only without a path url."
+                    "en": "You can use extensions only without a path URL."
                 }
             },
             {
