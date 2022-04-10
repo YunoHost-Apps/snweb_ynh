@@ -15,32 +15,40 @@
 
 # Fetching information
 current_version=$(cat manifest.json | jq -j '.version|split("~")[0]')
+current_ynh_version=$(cat manifest.json | jq -j '.version|split("~ynh")[1]')
+current_commit=$(cat scripts/_common.sh | awk -F= '/^COMMIT/ { print $2 }')
 repo=$(cat manifest.json | jq -j '.upstream.code|split("https://github.com/")[1]')
-# Some jq magic is needed, because the latest upstream release is not always the latest version (e.g. security patches for older versions)
-version=$(curl --silent "https://api.github.com/repos/$repo/releases" | jq -r '.[] | select( .prerelease != true ) | .tag_name' | sort -V | tail -1)
-assets="https://github.com/$repo/archive/refs/tags/$version.tar.gz"
-commit=$(curl --silent "https://api.github.com/repos/$repo/tags" | jq -r '[ .[] | select(.name=="'$version'").commit.sha ] | join(" ") | @sh' | tr -d "'")
+tag_version=$(curl --silent "https://api.github.com/repos/$repo/tags" | jq -r '.[] | .name' | sort -V | tail -1)
+version=$(curl --silent "https://raw.githubusercontent.com/$repo/$tag_version/package.json" | jq -j '.version')
+assets="https://github.com/$repo/archive/refs/tags/$tag_version.tar.gz"
+commit=$(curl --silent "https://api.github.com/repos/$repo/tags" | jq -r '[ .[] | select(.name=="'$tag_version'").commit.sha ] | join(" ") | @sh' | tr -d "'")
 
 # Later down the script, we assume the version has only digits and dots
 # Sometimes the release name starts with a "v", so let's filter it out.
 # You may need more tweaks here if the upstream repository has different naming conventions.
-if [[ ${version:0:1} == "v" || ${version:0:1} == "V" ]]; then
-    version=${version:1}
-fi
+#if [[ ${version:0:1} == "v" || ${version:0:1} == "V" ]]; then
+#    version=${version:1}
+#fi
 
 # Setting up the environment variables
 echo "Current version: $current_version"
-echo "Latest release from upstream: $version"
+echo "Current ynh version: $current_ynh_version"
+echo "Current commit: $current_commit"
+echo "Latest tag version from upstream: $tag_version"
+echo "Latest version from upstream: $version"
+
 echo "VERSION=$version" >> $GITHUB_ENV
+echo "YNH_VERSION=$current_ynh_version" >> $GITHUB_ENV
+echo "TAG_VERSION=$tag_version" >> $GITHUB_ENV
 # For the time being, let's assume the script will fail
 echo "PROCEED=false" >> $GITHUB_ENV
 
 # Proceed only if the retrieved version is greater than the current one
-if ! dpkg --compare-versions "$current_version" "lt" "$version" ; then
+if [[ ${current_commit:1:-1} == $commit ]] ; then
     echo "::warning ::No new version available"
     exit 0
 # Proceed only if a PR for this new version does not already exist
-elif git ls-remote -q --exit-code --heads https://github.com/$GITHUB_REPOSITORY.git ci-auto-update-v$version ; then
+elif git ls-remote -q --exit-code --heads https://github.com/$GITHUB_REPOSITORY.git ci-auto-update-v$version-tag$tag_version ; then
     echo "::warning ::A branch already exists for this update"
     exit 0
 fi
@@ -63,8 +71,14 @@ sed -i 's/COMMIT=".*"$/COMMIT="'$commit'"/g' $filename
 # GENERIC FINALIZATION
 #=================================================
 
+if ! dpkg --compare-versions "$current_version" "lt" "$version" ; then
+	new_version="$version~ynh$((current_ynh_version+1))"
+else
+	new_version="$version~ynh1"
+fi
+
 # Replace new version in manifest
-echo "$(jq -s --indent 4 ".[] | .version = \"$version~ynh1\"" manifest.json)" > manifest.json
+echo "$(jq -s --indent 4 ".[] | .version = \"$new_version\"" manifest.json)" > manifest.json
 
 # No need to update the README, yunohost-bot takes care of it
 

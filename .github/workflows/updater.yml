@@ -29,21 +29,22 @@ jobs:
         id: commit
         if: ${{ env.PROCEED == 'true' }}
         run: |
-          git commit -am "Upgrade to v$VERSION"
+          git commit -am "Upgrade to version $VERSION - tag $TAG_VERSION"
       - name: Create Pull Request
         id: cpr
         if: ${{ env.PROCEED == 'true' }}
         uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: 'Update: Update to version ${{ env.VERSION }}'
+          commit-message: 'Update: Update to version ${{ env.VERSION }} - tag ${{ env.TAG_VERSION }}'
           committer: 'yunohost-bot <yunohost-bot@users.noreply.github.com>'
           author: 'yunohost-bot <yunohost-bot@users.noreply.github.com>'
           signoff: false
           base: testing
-          branch: ci-auto-update-v${{ env.VERSION }}
+          branch: ci-auto-update-v${{ env.VERSION }}-tag${{ env.TAG_VERSION }}
           delete-branch: true
-          title: 'Upgrade to version ${{ env.VERSION }}'
+          title: 'Upgrade to version ${{ env.VERSION }} - tag ${{ env.TAG_VERSION }}'
           body: |
-            Upgrade to v${{ env.VERSION }}
+            Upgrade to version ${{ env.VERSION }}
+            Upgrade to tag ${{ env.TAG_VERSION }}
           draft: false
