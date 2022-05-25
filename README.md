@@ -5,7 +5,7 @@ It shall NOT be edited by hand.
 
 # Standard Notes for YunoHost
 
-[![Integration level](https://dash.yunohost.org/integration/snweb.svg)](https://dash.yunohost.org/appci/app/snweb) ![](https://ci-apps.yunohost.org/ci/badges/snweb.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/snweb.maintain.svg)  
+[![Integration level](https://dash.yunohost.org/integration/snweb.svg)](https://dash.yunohost.org/appci/app/snweb) ![Working status](https://ci-apps.yunohost.org/ci/badges/snweb.status.svg) ![Maintenance status](https://ci-apps.yunohost.org/ci/badges/snweb.maintain.svg)  
 [![Install Standard Notes with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=snweb)
 
 *[Lire ce readme en français.](./README_fr.md)*
@@ -17,13 +17,13 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 End-to-end encrypted note-taking app
 
-**Shipped version:** 3.14.0~ynh1
+**Shipped version:** 3.20.0~ynh1
 
 **Demo:** https://standardnotes.org/demo
 
 ## Screenshots
 
-![](./doc/screenshots/standard_notes.png)
+![Screenshot of Standard Notes](./doc/screenshots/standard_notes.png)
 
 ## Disclaimers / important information
 
@@ -40,22 +40,23 @@ End-to-end encrypted note-taking app
 
 ## Documentation and resources
 
-* Official app website: https://standardnotes.org/
-* Official user documentation: https://standardnotes.org/help
-* Official admin documentation: https://docs.standardnotes.org/
-* Upstream app code repository: https://github.com/standardnotes/web
-* YunoHost documentation for this app: https://yunohost.org/app_snweb
-* Report a bug: https://github.com/YunoHost-Apps/snweb_ynh/issues
+* Official app website: <https://standardnotes.org/>
+* Official user documentation: <https://standardnotes.org/help>
+* Official admin documentation: <https://docs.standardnotes.org/>
+* Upstream app code repository: <https://github.com/standardnotes/web>
+* YunoHost documentation for this app: <https://yunohost.org/app_snweb>
+* Report a bug: <https://github.com/YunoHost-Apps/snweb_ynh/issues>
 
 ## Developer info
 
 Please send your pull request to the [testing branch](https://github.com/YunoHost-Apps/snweb_ynh/tree/testing).
 
 To try the testing branch, please proceed like that.
-```
+
+``` bash
 sudo yunohost app install https://github.com/YunoHost-Apps/snweb_ynh/tree/testing --debug
 or
 sudo yunohost app upgrade snweb -u https://github.com/YunoHost-Apps/snweb_ynh/tree/testing --debug
 ```
 
-**More info regarding app packaging:** https://yunohost.org/packaging_apps
+**More info regarding app packaging:** <https://yunohost.org/packaging_apps>
