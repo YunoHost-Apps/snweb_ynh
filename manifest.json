@@ -14,7 +14,7 @@
         "demo": "https://standardnotes.org/demo",
         "admindoc": "https://docs.standardnotes.org/",
         "userdoc": "https://standardnotes.org/help",
-        "code": "https://github.com/standardnotes/web"
+        "code": "https://github.com/standardnotes/app"
     },
     "license": "AGPL-3.0-or-later",
     "maintainer": {
