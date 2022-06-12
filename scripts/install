@@ -90,20 +90,7 @@ ynh_script_progression --message="Setting up source files..." --weight=16
 
 ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 # Download, check integrity, uncompress and patch the source from app.src
-mkdir -p "$final_path/live"
-git clone $SOURCE "$final_path/live" --quiet
-pushd "$final_path/live"
-    git checkout $COMMIT --quiet
-    git submodule update --init --recursive --quiet
-popd
-
-# Apply Patch
-if [ -f "$YNH_CWD/../sources/patches/app-00-add-path-url.patch" ]
-then
-    pushd "$final_path/live"
-        patch --strip=1 < "$YNH_CWD/../sources/patches/app-00-add-path-url.patch"
-    popd
-fi
+ynh_setup_source --dest_dir="$final_path/live"
 
 chmod 750 "$final_path"
 chmod -R o-rwx "$final_path"

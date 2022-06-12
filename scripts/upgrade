@@ -98,22 +98,8 @@ if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
 	ynh_script_progression --message="Upgrading source files..." --weight=17
 
-	# Remove destination directory
-	ynh_secure_remove --file=$final_path
-	# Download
-	mkdir -p "$final_path"
-	git clone $SOURCE "$final_path/live" --quiet
-	pushd "$final_path/live"
-		git checkout $COMMIT --quiet
-		git submodule update --init --recursive --quiet
-	popd
-	# Apply Patch
-	if [ -f "$YNH_CWD/../sources/patches/app-00-add-path-url.patch" ]
-	then
-		pushd "$final_path/live"
-			patch --strip=1 < "$YNH_CWD/../sources/patches/app-00-add-path-url.patch"
-		popd
-	fi
+	# Download, check integrity, uncompress and patch the source from app.src
+	ynh_setup_source --dest_dir="$final_path/live"
 fi
 
 # Set permissions to app files
