@@ -18,9 +18,9 @@ current_version=$(cat manifest.json | jq -j '.version|split("~")[0]')
 current_ynh_version=$(cat manifest.json | jq -j '.version|split("~ynh")[1]')
 current_commit=$(cat scripts/_common.sh | awk -F= '/^COMMIT/ { print $2 }')
 repo=$(cat manifest.json | jq -j '.upstream.code|split("https://github.com/")[1]')
-tag_version=$(curl --silent "https://api.github.com/repos/$repo/tags" | jq -r '.[] | .name' | sort -V | tail -1)
+tag_version=$(curl --silent "https://api.github.com/repos/$repo/tags" | jq -r '.[] | .name' | grep -v "@standardnotes" | sort -V | tail -1)
 version=$(curl --silent "https://raw.githubusercontent.com/$repo/$tag_version/package.json" | jq -j '.version')
-assets="https://github.com/$repo/archive/refs/tags/$tag_version.tar.gz"
+asset="https://github.com/$repo/archive/refs/tags/$tag_version.tar.gz"
 commit=$(curl --silent "https://api.github.com/repos/$repo/tags" | jq -r '[ .[] | select(.name=="'$tag_version'").commit.sha ] | join(" ") | @sh' | tr -d "'")
 
 # Later down the script, we assume the version has only digits and dots
@@ -57,8 +57,34 @@ fi
 # UPDATE SOURCE FILES
 #=================================================
 
-filename="scripts/_common.sh"
-sed -i 's/COMMIT=".*"$/COMMIT="'$commit'"/g' $filename
+# Create the temporary directory
+tempdir="$(mktemp -d)"
+
+# Download sources and calculate checksum
+filename=${asset##*/}
+curl --silent -4 -L $asset -o "$tempdir/$filename"
+checksum=$(sha256sum "$tempdir/$filename" | head -c 64)
+
+# Delete temporary directory
+rm -rf $tempdir
+
+# Get extension
+if [[ $filename == *.tar.gz ]]; then
+  extension=tar.gz
+else
+  extension=${filename##*.}
+fi
+
+# Rewrite source file
+cat <<EOT > conf/$src.src
+SOURCE_URL=$asset
+SOURCE_SUM=$checksum
+SOURCE_SUM_PRG=sha256sum
+SOURCE_FORMAT=$extension
+SOURCE_IN_SUBDIR=true
+SOURCE_FILENAME=
+EOT
+echo "... conf/$src.src updated"
 
 #=================================================
 # SPECIFIC UPDATE STEPS
