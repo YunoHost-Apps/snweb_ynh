@@ -43,7 +43,7 @@ Application de prise de notes chiffrées
 * Site officiel de l'app : <https://standardnotes.org/>
 * Documentation officielle utilisateur : <https://standardnotes.org/help>
 * Documentation officielle de l'admin : <https://docs.standardnotes.org/>
-* Dépôt de code officiel de l'app : <https://github.com/standardnotes/web>
+* Dépôt de code officiel de l'app : <https://github.com/standardnotes/app>
 * Documentation YunoHost pour cette app : <https://yunohost.org/app_snweb>
 * Signaler un bug : <https://github.com/YunoHost-Apps/snweb_ynh/issues>
 

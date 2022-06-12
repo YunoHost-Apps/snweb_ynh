@@ -43,7 +43,7 @@ End-to-end encrypted note-taking app
 * Official app website: <https://standardnotes.org/>
 * Official user documentation: <https://standardnotes.org/help>
 * Official admin documentation: <https://docs.standardnotes.org/>
-* Upstream app code repository: <https://github.com/standardnotes/web>
+* Upstream app code repository: <https://github.com/standardnotes/app>
 * YunoHost documentation for this app: <https://yunohost.org/app_snweb>
 * Report a bug: <https://github.com/YunoHost-Apps/snweb_ynh/issues>
 
