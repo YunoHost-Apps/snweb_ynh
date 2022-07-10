@@ -18,10 +18,19 @@ current_version=$(cat manifest.json | jq -j '.version|split("~")[0]')
 current_ynh_version=$(cat manifest.json | jq -j '.version|split("~ynh")[1]')
 current_commit=$(cat scripts/_common.sh | awk -F= '/^COMMIT/ { print $2 }')
 repo=$(cat manifest.json | jq -j '.upstream.code|split("https://github.com/")[1]')
-tag_version=$(curl --silent "https://api.github.com/repos/$repo/tags" | jq -r '.[] | .name' | grep -v "@standardnotes" | sort -V | tail -1)
-version=$(curl --silent "https://raw.githubusercontent.com/$repo/$tag_version/package.json" | jq -j '.version')
+
+page=0
+tag_version=""
+while [ -z $tag_version ]
+do
+    let page++
+    tag_version=$(curl --silent "https://api.github.com/repos/$repo/tags?per_page=100&page=$page" | jq -r '.[] | .name' | grep -v "alpha" | grep "@standardnotes/web@" | sort -V | tail -1)
+
+done
+
+version=$(curl --silent "https://raw.githubusercontent.com/$repo/$tag_version/packages/web/package.json" | jq -j '.version')
 asset="https://github.com/$repo/archive/refs/tags/$tag_version.tar.gz"
-commit=$(curl --silent "https://api.github.com/repos/$repo/tags" | jq -r '[ .[] | select(.name=="'$tag_version'").commit.sha ] | join(" ") | @sh' | tr -d "'")
+commit=$(curl --silent "https://api.github.com/repos/$repo/tags?per_page=100&page=$page" | jq -r '[ .[] | select(.name=="'$tag_version'").commit.sha ] | join(" ") | @sh' | tr -d "'")
 
 # Later down the script, we assume the version has only digits and dots
 # Sometimes the release name starts with a "v", so let's filter it out.
@@ -76,7 +85,7 @@ else
 fi
 
 # Rewrite source file
-cat <<EOT > conf/$src.src
+cat <<EOT > conf/app.src
 SOURCE_URL=$asset
 SOURCE_SUM=$checksum
 SOURCE_SUM_PRG=sha256sum
@@ -84,7 +93,7 @@ SOURCE_FORMAT=$extension
 SOURCE_IN_SUBDIR=true
 SOURCE_FILENAME=
 EOT
-echo "... conf/$src.src updated"
+echo "... conf/app.src updated"
 
 #=================================================
 # SPECIFIC UPDATE STEPS
@@ -111,5 +120,3 @@ echo "$(jq -s --indent 4 ".[] | .version = \"$new_version\"" manifest.json)" > m
 # The Action will proceed only if the PROCEED environment variable is set to true
 echo "PROCEED=true" >> $GITHUB_ENV
 exit 0
-
-
