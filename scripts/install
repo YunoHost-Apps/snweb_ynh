@@ -96,14 +96,6 @@ chmod 750 "$final_path"
 chmod -R o-rwx "$final_path"
 chown -R $app: "$final_path"
 
-# Set permissions to app files
-mkdir -p "$final_path/live/log"
-chown -R $app: "$final_path/live/log"
-mkdir -p "$final_path/live/public"
-chown -R $app: "$final_path/live/public"
-mkdir -p "$final_path/live/tmp"
-chown -R $app: "$final_path/live/tmp"
-
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
@@ -146,13 +138,9 @@ chown -R $app: "$final_path"
 
 pushd "$final_path/live"
     ynh_use_nodejs
-    ynh_exec_as $app $ynh_ruby_load_path bin/bundle config set --local path 'vendor/bundle'
-    ynh_exec_as $app $ynh_ruby_load_path bin/bundle config set with 'development'
-    ynh_exec_warn_less ynh_exec_as $app $ynh_ruby_load_path bin/bundle update -j$(getconf _NPROCESSORS_ONLN) --quiet
-    ynh_exec_warn_less ynh_exec_as $app $ynh_ruby_load_path bin/bundle install -j$(getconf _NPROCESSORS_ONLN) --quiet
-    ynh_exec_warn_less ynh_exec_as $app env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" PATH=$ynh_node_load_PATH yarn install --pure-lockfile
-    ynh_exec_warn_less ynh_exec_as $app env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" PATH=$ynh_node_load_PATH yarn bundle
-    ynh_exec_warn_less ynh_exec_as $app $ynh_ruby_load_path bin/bundle exec rails assets:precompile --quiet
+    ynh_exec_warn_less ynh_exec_as $app env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" PATH=$ynh_node_load_PATH yarn install
+    ynh_exec_warn_less ynh_exec_as $app env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" PATH=$ynh_node_load_PATH yarn build:web-server
+    ynh_exec_warn_less ynh_exec_as $app env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" PATH=$ynh_node_load_PATH yarn build:web
 popd
 
 #=================================================
@@ -174,7 +162,6 @@ mkdir -p "/var/log/$app"
 chown -R $app: "/var/log/$app"
 
 # Use logrotate to manage application logfile(s)
-ynh_use_logrotate --logfile="$final_path/live/log/production.log"
 ynh_use_logrotate --logfile="/var/log/$app/$app.log"
 
 #=================================================
