@@ -68,14 +68,6 @@ chmod 750 "$final_path"
 chmod -R o-rwx "$final_path"
 chown -R $app: "$final_path"
 
-# Set permissions to app files
-mkdir -p "$final_path/live/log"
-chown -R $app: "$final_path/live/log"
-mkdir -p "$final_path/live/public"
-chown -R $app: "$final_path/live/public"
-mkdir -p "$final_path/live/tmp"
-chown -R $app: "$final_path/live/tmp"
-
 #=================================================
 # SPECIFIC RESTORATION
 #=================================================
