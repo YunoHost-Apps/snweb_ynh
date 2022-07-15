@@ -98,35 +98,14 @@ if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
 	ynh_script_progression --message="Upgrading source files..." --weight=17
 
-	# Remove destination directory
-	ynh_secure_remove --file=$final_path
-	# Download
-	mkdir -p "$final_path"
-	git clone $SOURCE "$final_path/live" --quiet
-	pushd "$final_path/live"
-		git checkout $COMMIT --quiet
-		git submodule update --init --recursive --quiet
-	popd
-	# Apply Patch
-	if [ -f "$YNH_CWD/../sources/patches/app-00-add-path-url.patch" ]
-	then
-		pushd "$final_path/live"
-			patch --strip=1 < "$YNH_CWD/../sources/patches/app-00-add-path-url.patch"
-		popd
-	fi
+	# Download, check integrity, uncompress and patch the source from app.src
+	ynh_setup_source --dest_dir="$final_path/live"
 fi
 
 # Set permissions to app files
 chmod 750 "$final_path"
 chmod -R o-rwx "$final_path"
 chown -R $app: "$final_path"
-
-mkdir -p "$final_path/live/log"
-chown -R $app: "$final_path/live/log"
-mkdir -p "$final_path/live/public"
-chown -R $app: "$final_path/live/public"
-mkdir -p "$final_path/live/tmp"
-chown -R $app: "$final_path/live/tmp"
 
 #=================================================
 # NGINX CONFIGURATION
@@ -141,7 +120,7 @@ ynh_add_nginx_config
 #=================================================
 ynh_script_progression --message="Upgrading dependencies..." --weight=37
 
-ynh_install_app_dependencies $pkg_dependencies
+ynh_install_app_dependencies $pkg_dependencies $build_pkg_dependencies
 ynh_install_nodejs --nodejs_version=$NODEJS_VERSION
 ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
 ynh_install_ruby --ruby_version=$RUBY_VERSION
@@ -179,13 +158,9 @@ then
 
 	pushd "$final_path/live"
 		ynh_use_nodejs
-		ynh_exec_as $app $ynh_ruby_load_path bin/bundle config set --local path 'vendor/bundle'
-		ynh_exec_as $app $ynh_ruby_load_path bin/bundle config set with 'development'
-		ynh_exec_warn_less ynh_exec_as $app $ynh_ruby_load_path bin/bundle update -j$(getconf _NPROCESSORS_ONLN) --quiet
-		ynh_exec_warn_less ynh_exec_as $app $ynh_ruby_load_path bin/bundle install -j$(getconf _NPROCESSORS_ONLN) --quiet
-		ynh_exec_warn_less ynh_exec_as $app env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" PATH=$ynh_node_load_PATH yarn install --pure-lockfile
-		ynh_exec_warn_less ynh_exec_as $app env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" PATH=$ynh_node_load_PATH yarn bundle
-		ynh_exec_warn_less ynh_exec_as $app $ynh_ruby_load_path bin/bundle exec rails assets:precompile --quiet
+		ynh_exec_warn_less ynh_exec_as $app env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" PATH=$ynh_node_load_PATH yarn install
+		ynh_exec_warn_less ynh_exec_as $app env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" PATH=$ynh_node_load_PATH yarn build:web-server
+		ynh_exec_warn_less ynh_exec_as $app env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" PATH=$ynh_node_load_PATH yarn build:web
 	popd
 fi
 
@@ -208,7 +183,6 @@ mkdir -p "/var/log/$app"
 chown -R $app: "/var/log/$app"
 
 # Use logrotate to manage application logfile(s)
-ynh_use_logrotate --logfile="$final_path/live/log/production.log"
 ynh_use_logrotate --logfile="/var/log/$app/$app.log"
 
 #=================================================
