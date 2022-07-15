@@ -17,7 +17,7 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 Application de prise de notes chiffrées
 
-**Version incluse :** 3.20.2~ynh1
+**Version incluse :** 3.39.1~ynh1
 
 **Démo :** https://standardnotes.org/demo
 
@@ -29,12 +29,12 @@ Application de prise de notes chiffrées
 
 * No single-sign on or LDAP integration
 * The app requires up 1500MB of RAM to install
-* The app requires at least 80MB of RAM to work properly.
-* The app requires around 1000MB of disk.
+* The app requires at least 100MB of RAM to work properly.
+* The app requires around 3500MB of disk.
 
 * A dedicated domain is requierd if you want to use extensions.
-    * notes.your-domain.tld/ -> Extension Manager is working
-    * your-domain.tld/notes/ -> Extension Manager is not working
+    * notes.your-domain.tld/ -> Extensions are working
+    * your-domain.tld/notes/ -> Extensions are not working
 
 * The config-file is stored under "/opt/yunohost/$app/live/.env"
 
@@ -43,7 +43,7 @@ Application de prise de notes chiffrées
 * Site officiel de l'app : <https://standardnotes.org/>
 * Documentation officielle utilisateur : <https://standardnotes.org/help>
 * Documentation officielle de l'admin : <https://docs.standardnotes.org/>
-* Dépôt de code officiel de l'app : <https://github.com/standardnotes/web>
+* Dépôt de code officiel de l'app : <https://github.com/standardnotes/app>
 * Documentation YunoHost pour cette app : <https://yunohost.org/app_snweb>
 * Signaler un bug : <https://github.com/YunoHost-Apps/snweb_ynh/issues>
 

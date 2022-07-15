@@ -1,7 +1,7 @@
-diff --git a/config.ru b/config.ru
+diff --git a/packages/web-server/config.ru b/packages/web-server/config.ru
 index bd83b25..6b1bb50 100644
---- a/config.ru
-+++ b/config.ru
+--- a/packages/web-server/config.ru
++++ b/packages/web-server/config.ru
 @@ -1,4 +1,6 @@
  # This file is used by Rack-based servers to start the application.
  

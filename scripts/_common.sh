@@ -6,18 +6,10 @@
 
 # dependencies used by the app
 pkg_dependencies="\
-        zlib1g-dev \
-        libssl-dev \
-        libjemalloc-dev \
-        python2-minimal \
-        git \
         "
 
-RUBY_VERSION="2.7.3"
+RUBY_VERSION="2.7.4"
 NODEJS_VERSION="16"
-
-SOURCE="https://github.com/standardnotes/web"
-COMMIT="4d581feb0ac862e5face27be3fd52ac39f565d23"
 
 node_max_old_space_size=2048
 
