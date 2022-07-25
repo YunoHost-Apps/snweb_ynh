@@ -17,7 +17,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 End-to-end encrypted note-taking app
 
-**Shipped version:** 3.39.1~ynh1
+**Shipped version:** 3.41.0~ynh1
 
 **Demo:** https://standardnotes.org/demo
 
