@@ -7,7 +7,6 @@
 #=================================================
 
 source _common.sh
-source ynh_install_ruby__2
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -39,7 +38,7 @@ app=$YNH_APP_INSTANCE_NAME
 #=================================================
 ynh_script_progression --message="Validating installation parameters..." --weight=2
 
-final_path=/opt/yunohost/$app
+final_path=/var/www/$app
 test ! -e "$final_path" || ynh_die --message="This path already contains a folder"
 
 # Register (book) web path
@@ -57,23 +56,14 @@ ynh_app_setting_set --app=$app --key=snserver_domain --value=$snserver_domain
 #=================================================
 # STANDARD MODIFICATIONS
 #=================================================
-# FIND AND OPEN A PORT
-#=================================================
-ynh_script_progression --message="Finding an available port..." --weight=1
-
-# Find an available port
-port=$(ynh_find_port --port=3000)
-ynh_app_setting_set --app=$app --key=port --value=$port
-
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
 ynh_script_progression --message="Installing dependencies..." --weight=30
 
-ynh_install_app_dependencies $pkg_dependencies $build_pkg_dependencies
+ynh_install_app_dependencies $pkg_dependencies
 ynh_install_nodejs --nodejs_version=$NODEJS_VERSION
 ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
-ynh_install_ruby --ruby_version=$RUBY_VERSION
 
 #=================================================
 # CREATE DEDICATED USER
@@ -94,7 +84,7 @@ ynh_setup_source --dest_dir="$final_path/live"
 
 chmod 750 "$final_path"
 chmod -R o-rwx "$final_path"
-chown -R $app: "$final_path"
+chown -R $app:www-data "$final_path"
 
 #=================================================
 # NGINX CONFIGURATION
@@ -107,77 +97,39 @@ ynh_add_nginx_config
 #=================================================
 # SPECIFIC SETUP
 #=================================================
-# INSTALLING RUBY AND BUNDLER
-#=================================================
-ynh_script_progression --message="Installing Ruby... ( This may take a while... )" --weight=100 #212
-
-pushd "$final_path/live"
-	ynh_use_ruby
-	ynh_gem update --system --no-document --quiet
-	ynh_gem install bundler --no-document --quiet
-popd
-
-#=================================================
-# ADD A CONFIGURATION
-#=================================================
-ynh_script_progression --message="Adding a configuration file..." --weight=1
-
-config_file="$final_path/live/.env"
-secret_key_base=$(ynh_string_random --length=48 | base64)
-
-ynh_app_setting_set --app=$app --key=secret_key_base --value=$secret_key_base
-
-ynh_add_config --template="env.sample" --destination="$config_file"
-
 #=================================================
 # BUILDING 
 #=================================================
 ynh_script_progression --message="Building... ( This may take a while... )" --weight=100 #497
 
-chown -R $app: "$final_path"
-
 pushd "$final_path/live"
     ynh_use_nodejs
-    ynh_exec_warn_less ynh_exec_as $app env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" PATH=$ynh_node_load_PATH yarn install
-    ynh_exec_warn_less ynh_exec_as $app env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" PATH=$ynh_node_load_PATH yarn build:web-server
-    ynh_exec_warn_less ynh_exec_as $app env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" PATH=$ynh_node_load_PATH yarn build:web
+    ynh_exec_warn_less ynh_exec_as $app env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" $ynh_node_load_PATH yarn install --immutable
+    ynh_exec_warn_less ynh_exec_as $app env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" $ynh_node_load_PATH yarn build:web
 popd
+chown -R $app:www-data "$final_path"
 
 #=================================================
-# SETUP SYSTEMD
+# Modify Config
 #=================================================
-ynh_script_progression --message="Configuring a systemd service..." --weight=3
+ynh_script_progression --message="Configuring..." --weight=1
 
-# Create a dedicated systemd config
-ynh_add_systemd_config
+# If $path is used modify .js file for a working app on a subpath
+cp "$final_path/live/packages/web/dist/app.js" "$final_path/live/packages/web/dist/app.js.orginal"
+if [ $path_url != "/" ]
+then
+	ynh_replace_string --match_string="/components/" --replace_string="$path_url/components/" --target_file="$final_path/live/packages/web/dist/app.js"
+fi
 
-#=================================================
-# GENERIC FINALIZATION
-#=================================================
-# SETUP LOGROTATE
-#=================================================
-ynh_script_progression --message="Configuring log rotation..." --weight=2
-
-mkdir -p "/var/log/$app"
-chown -R $app: "/var/log/$app"
-
-# Use logrotate to manage application logfile(s)
-ynh_use_logrotate --logfile="/var/log/$app/$app.log"
-
-#=================================================
-# INTEGRATE SERVICE IN YUNOHOST
-#=================================================
-ynh_script_progression --message="Integrating service in YunoHost..." --weight=1
-
-yunohost service add $app --description="Standard Notes" --log="/var/log/$app/$app.log"
-
-#=================================================
-# START SYSTEMD SERVICE
-#=================================================
-ynh_script_progression --message="Starting a systemd service..." --weight=1
-
-# Start a systemd service
-ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log"
+# Modify Config
+index_file="$final_path/live/packages/web/dist/index.html"
+ynh_replace_string --match_string="\(defaultSyncServer = \).*" --replace_string="\1\"$snserver_domain\"" --target_file="$index_file"
+ynh_replace_string --match_string="\(defaultFilesHost = \).*" --replace_string="\1\"\"" --target_file="$index_file"
+ynh_replace_string --match_string="\(enabledUnfinishedFeatures = \).*" --replace_string="\1false" --target_file="$index_file"
+ynh_replace_string --match_string="\(websocketUrl = \).*" --replace_string="\1\"\"" --target_file="$index_file"
+ynh_replace_string --match_string="\(purchaseUrl = \).*" --replace_string="\1\"\"" --target_file="$index_file"
+ynh_replace_string --match_string="\(plansUrl = \).*" --replace_string="\1\"\"" --target_file="$index_file"
+ynh_replace_string --match_string="\(dashboardUrl =\).*" --replace_string="\1\"\"" --target_file="$index_file"
 
 #=================================================
 # SETUP SSOWAT
@@ -198,13 +150,6 @@ fi
 ynh_script_progression --message="Reloading NGINX web server..." --weight=2
 
 ynh_systemd_action --service_name=nginx --action=reload
-
-#=================================================
-# WAITING FOR SERVICE
-#=================================================
-ynh_script_progression --message="Waiting for service..."  --weight=1
-
-is_service_ready
 
 #=================================================
 # END OF SCRIPT

@@ -20,11 +20,7 @@ app=$YNH_APP_INSTANCE_NAME
 domain=$(ynh_app_setting_get --app=$app --key=domain)
 path_url=$(ynh_app_setting_get --app=$app --key=path)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
-port=$(ynh_app_setting_get --app=$app --key=port)
 snserver_domain=$(ynh_app_setting_get --app=$app --key=snserver_domain)
-secret_key_base=$(ynh_app_setting_get --app=$app --key=secret_key_base)
-
-config_file="$final_path/live/.env"
 
 #=================================================
 # CHECK VERSION
@@ -50,12 +46,6 @@ ynh_abort_if_errors
 #=================================================
 # STANDARD UPGRADE STEPS
 #=================================================
-# STOP SYSTEMD SERVICE
-#=================================================
-ynh_script_progression --message="Stopping a systemd service..." --weight=1
-
-ynh_systemd_action --service_name=$app --action="stop" --log_path="/var/log/$app/$app.log"
-
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
@@ -70,16 +60,12 @@ fi
 
 # If final_path doesn't exist, create it
 if [ -z "$final_path" ]; then
-	final_path=/opt/yunohost/$app
+	final_path=/var/www/$app
 	ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 fi
 
 if [ -z "$snserver_domain" ]; then
 	snserver_domain="api.standardnotes.com"
-fi
-
-if [ -z "$secret_key_base" ]; then
-	secret_key_base=$(ynh_string_random --length=48 | base64)
 fi
 
 #=================================================
@@ -105,7 +91,7 @@ fi
 # Set permissions to app files
 chmod 750 "$final_path"
 chmod -R o-rwx "$final_path"
-chown -R $app: "$final_path"
+chown -R $app:www-data "$final_path"
 
 #=================================================
 # NGINX CONFIGURATION
@@ -123,29 +109,10 @@ ynh_script_progression --message="Upgrading dependencies..." --weight=37
 ynh_install_app_dependencies $pkg_dependencies $build_pkg_dependencies
 ynh_install_nodejs --nodejs_version=$NODEJS_VERSION
 ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
-ynh_install_ruby --ruby_version=$RUBY_VERSION
 
 #=================================================
 # SPECIFIC UPGRADE
 #=================================================
-# INSTALLING RUBY AND BUNDLER
-#=================================================
-ynh_script_progression --message="Installing Ruby... ( This may take a while... )"  --weight=100 #331
-
-pushd "$final_path/live"
-	ynh_use_ruby
-	ynh_gem update --system --no-document --quiet
-	ynh_gem install bundler --no-document --quiet
-popd
-
-#=================================================
-# UPDATE A CONFIG FILE
-#=================================================
-
-ynh_script_progression --message="Updating a configuration file..." --weight=2
-
-ynh_add_config --template="env.sample" --destination="$config_file"
-
 #=================================================
 # BUILDING 
 #=================================================
@@ -154,64 +121,45 @@ if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
 	ynh_script_progression --message="Building... ( This may take a while... )" --weight=100 #131
 
-	chown -R $app: "$final_path"
-
 	pushd "$final_path/live"
 		ynh_use_nodejs
-		ynh_exec_warn_less ynh_exec_as $app env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" PATH=$ynh_node_load_PATH yarn install
-		ynh_exec_warn_less ynh_exec_as $app env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" PATH=$ynh_node_load_PATH yarn build:web-server
-		ynh_exec_warn_less ynh_exec_as $app env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" PATH=$ynh_node_load_PATH yarn build:web
+		ynh_exec_warn_less ynh_exec_as $app env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" $ynh_node_load_PATH yarn install --immutable
+		ynh_exec_warn_less ynh_exec_as $app env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" $ynh_node_load_PATH yarn build:web
 	popd
+	chown -R $app:www-data "$final_path"
 fi
 
 #=================================================
-# SETUP SYSTEMD
+# Modify Config
 #=================================================
-ynh_script_progression --message="Upgrading systemd configuration..." --weight=4
+ynh_script_progression --message="Configuring..." --weight=1
 
-# Create a dedicated systemd config
-ynh_add_systemd_config
+# If $path is used modify .js file for a working app on a subpath
+cp "$final_path/live/packages/web/dist/app.js" "$final_path/live/packages/web/dist/app.js.orginal"
+if [ $path_url != "/" ]
+then
+	ynh_replace_string --match_string="/components/" --replace_string="$path_url/components/" --target_file="$final_path/live/packages/web/dist/app.js"
+fi
+
+# Modify Config
+index_file="$final_path/live/packages/web/dist/index.html"
+ynh_replace_string --match_string="\(defaultSyncServer = \).*" --replace_string="\1\"$snserver_domain\"" --target_file="$index_file"
+ynh_replace_string --match_string="\(defaultFilesHost = \).*" --replace_string="\1\"\"" --target_file="$index_file"
+ynh_replace_string --match_string="\(enabledUnfinishedFeatures = \).*" --replace_string="\1false" --target_file="$index_file"
+ynh_replace_string --match_string="\(websocketUrl = \).*" --replace_string="\1\"\"" --target_file="$index_file"
+ynh_replace_string --match_string="\(purchaseUrl = \).*" --replace_string="\1\"\"" --target_file="$index_file"
+ynh_replace_string --match_string="\(plansUrl = \).*" --replace_string="\1\"\"" --target_file="$index_file"
+ynh_replace_string --match_string="\(dashboardUrl =\).*" --replace_string="\1\"\"" --target_file="$index_file"
 
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
-# SETUP LOGROTATE
-#=================================================
-ynh_script_progression --message="Upgrading logrotate configuration..." --weight=1
-
-mkdir -p "/var/log/$app"
-chown -R $app: "/var/log/$app"
-
-# Use logrotate to manage application logfile(s)
-ynh_use_logrotate --logfile="/var/log/$app/$app.log"
-
-#=================================================
-# INTEGRATE SERVICE IN YUNOHOST
-#=================================================
-ynh_script_progression --message="Integrating service in YunoHost..." --weight=1
-
-yunohost service add $app --description="Standard Notes" --log="/var/log/$app/$app.log"
-
-#=================================================
-# START SYSTEMD SERVICE
-#=================================================
-ynh_script_progression --message="Starting a systemd service..." --weight=2
-
-ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log"
-
 #=================================================
 # RELOAD NGINX
 #=================================================
 ynh_script_progression --message="Reloading NGINX web server..." --weight=1
 
 ynh_systemd_action --service_name=nginx --action=reload
-
-#=================================================
-# WAITING FOR SERVICE
-#=================================================
-ynh_script_progression --message="Waiting for service..."  --weight=1
-
-is_service_ready
 
 #=================================================
 # END OF SCRIPT
