@@ -19,6 +19,7 @@ End-to-end encrypted note-taking app
 
 **Shipped version:** 3.45.17~ynh1
 
+
 **Demo:** https://standardnotes.org/demo
 
 ## Screenshots
