@@ -19,7 +19,6 @@ Application de prise de notes chiffrées
 
 **Version incluse :** 3.45.17~ynh1
 
-
 **Démo :** https://standardnotes.org/demo
 
 ## Captures d'écran
