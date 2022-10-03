@@ -28,9 +28,7 @@ ynh_script_progression --message="Loading installation settings..." --weight=1
 
 # Needed for helper "ynh_add_nginx_config"
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
-port=$(ynh_app_setting_get --app=$app --key=port)
 snserver_domain=$(ynh_app_setting_get --app=$app --key=snserver_domain)
-secret_key_base=$(ynh_app_setting_get --app=$app --key=secret_key_base)
 
 #=================================================
 # BACKUP BEFORE CHANGE URL THEN ACTIVE TRAP
@@ -68,13 +66,6 @@ fi
 #=================================================
 # STANDARD MODIFICATIONS
 #=================================================
-# STOP SYSTEMD SERVICE
-#=================================================
-ynh_script_progression --message="Stopping a systemd service..." --weight=1
-
-ynh_systemd_action --service_name=$app --action="stop" --log_path="/var/log/$app/$app.log"
-
-#=================================================
 # MODIFY URL IN NGINX CONF
 #=================================================
 ynh_script_progression --message="Updating NGINX web server configuration..." --weight=1
@@ -106,39 +97,26 @@ fi
 #=================================================
 # SPECIFIC MODIFICATIONS
 #=================================================
+ynh_script_progression --message="Modify Configuration..." --weight=1
 
-config_file="$final_path/live/.env"
-
-domain=$new_domain
-path_url=$new_path
-
-ynh_add_config --template="env.sample" --destination="$config_file"
+if [ $change_path -eq 1 ]
+then
+	cp "$final_path/live/packages/web/dist/app.js.orginal" "$final_path/live/packages/web/dist/app.js"
+	# If $new_path is used modify .js file for a working app on a subpath
+	if [ $new_path != "/" ]
+	then
+		ynh_replace_string --match_string="/components/" --replace_string="$new_path/components/" --target_file="$final_path/live/packages/web/dist/app.js"
+	fi
+fi
 
 #=================================================
 # GENERIC FINALISATION
-#=================================================
-# START SYSTEMD SERVICE
-#=================================================
-ynh_script_progression --message="Starting a systemd service..." --weight=1
-
-# Start a systemd service
-ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log"
-
 #=================================================
 # RELOAD NGINX
 #=================================================
 ynh_script_progression --message="Reloading NGINX web server..." --weight=1
 
 ynh_systemd_action --service_name=nginx --action=reload
-
-#=================================================
-# WAITING FOR SERVICE
-#=================================================
-ynh_script_progression --message="Waiting for service..."  --weight=1
-
-domain=$new_domain
-path_url=$new_path
-is_service_ready
 
 #=================================================
 # END OF SCRIPT
