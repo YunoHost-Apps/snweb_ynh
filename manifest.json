@@ -6,7 +6,7 @@
         "en": "End-to-end encrypted note-taking app",
         "fr": "Application de prise de notes chiffrées"
     },
-    "version": "3.39.1~ynh1",
+    "version": "3.66.0~ynh1",
     "url": "https://github.com/standardnotes/web",
     "upstream": {
         "license": "AGPL-3.0-or-later",
@@ -58,7 +58,7 @@
                     "en": "Choose the default Standard Notes Syncing Server",
                     "de": "Wähle den Standard Notes Syncing Server"
                 },
-                "default": "api.standardnotes.org"
+                "default": "api.standardnotes.com"
             }
         ]
     }

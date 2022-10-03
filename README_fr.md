@@ -17,7 +17,8 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 Application de prise de notes chiffrées
 
-**Version incluse :** 3.39.1~ynh1
+**Version incluse :** 3.66.0~ynh1 *(:warning: Il s'agit de la branche `testing`. La [branche `master`](https://github.com/YunoHost-Apps/snweb_ynh/tree/master) utilisée dans le catalogue est actuellement en 3.39.1\~ynh1.)*
+
 
 **Démo :** https://standardnotes.org/demo
 
