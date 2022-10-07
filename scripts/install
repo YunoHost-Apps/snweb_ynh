@@ -123,7 +123,7 @@ fi
 
 # Modify Config
 index_file="$final_path/live/packages/web/dist/index.html"
-ynh_replace_string --match_string="\(defaultSyncServer = \).*" --replace_string="\1\"$snserver_domain\"" --target_file="$index_file"
+ynh_replace_string --match_string="\(defaultSyncServer = \).*" --replace_string="\1\"https://$snserver_domain\"" --target_file="$index_file"
 ynh_replace_string --match_string="\(defaultFilesHost = \).*" --replace_string="\1\"\"" --target_file="$index_file"
 ynh_replace_string --match_string="\(enabledUnfinishedFeatures = \).*" --replace_string="\1false" --target_file="$index_file"
 ynh_replace_string --match_string="\(websocketUrl = \).*" --replace_string="\1\"\"" --target_file="$index_file"
