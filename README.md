@@ -17,8 +17,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 End-to-end encrypted note-taking app
 
-**Shipped version:** 3.66.0~ynh2 *(:warning: This is the `fix` branch. The [`master` branch](https://github.com/YunoHost-Apps/snweb_ynh/tree/master) used in the catalog is currently on version 3.66.0\~ynh1.)*
-
+**Shipped version:** 3.66.0~ynh2
 
 **Demo:** https://standardnotes.org/demo
 
