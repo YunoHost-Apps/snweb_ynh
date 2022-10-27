@@ -1,7 +1,6 @@
-SOURCE_URL=https://github.com/standardnotes/app/archive/refs/tags/@standardnotes/web@3.66.0.tar.gz
-SOURCE_SUM=135aea740cb5d0497faf1f05a234965f6410f07cf429d839ea516179e0d57f40
+SOURCE_URL=https://github.com/standardnotes/app/archive/refs/tags/@standardnotes/web@3.88.1.tar.gz
+SOURCE_SUM=daf5ae233991dcb4ddc860b908767bdb19cc44b161e3e3e91a39567c26913d15
 SOURCE_SUM_PRG=sha256sum
 SOURCE_FORMAT=tar.gz
 SOURCE_IN_SUBDIR=true
 SOURCE_FILENAME=
-SOURCE_EXTRACT=true
