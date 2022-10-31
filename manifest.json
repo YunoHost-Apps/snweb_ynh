@@ -6,7 +6,7 @@
         "en": "End-to-end encrypted note-taking app",
         "fr": "Application de prise de notes chiffrées"
     },
-    "version": "3.88.1~ynh1",
+    "version": "3.90.6~ynh1",
     "url": "https://github.com/standardnotes/web",
     "upstream": {
         "license": "AGPL-3.0-or-later",
