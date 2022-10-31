@@ -17,7 +17,7 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 Application de prise de notes chiffrées
 
-**Version incluse :** 3.88.1~ynh1
+**Version incluse :** 3.90.6~ynh1
 
 **Démo :** https://standardnotes.org/demo
 
