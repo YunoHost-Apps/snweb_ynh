@@ -17,7 +17,7 @@ Si vous n’avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) po
 
 Application de prise de notes chiffrées
 
-**Version incluse :** 3.138.0~ynh1
+**Version incluse :** 3.142.8~ynh1
 
 **Démo :** https://standardnotes.org/demo
 
