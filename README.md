@@ -17,7 +17,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 End-to-end encrypted note-taking app
 
-**Shipped version:** 3.142.8~ynh1
+**Shipped version:** 3.146.2~ynh1
 
 **Demo:** https://standardnotes.org/demo
 
@@ -30,6 +30,10 @@ End-to-end encrypted note-taking app
 * No single-sign on or LDAP integration
 * The app requires up 1500MB of RAM to install
 * The app requires around 3600MB of disk.
+
+## :red_circle: Antifeatures
+
+- **Package not maintained**: This YunoHost package is not maintained and needs adoption.
 
 ## Documentation and resources
 
