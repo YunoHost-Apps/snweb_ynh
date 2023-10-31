@@ -6,6 +6,7 @@ It shall NOT be edited by hand.
 # Standard Notes pour YunoHost
 
 [![Niveau d’intégration](https://dash.yunohost.org/integration/snweb.svg)](https://dash.yunohost.org/appci/app/snweb) ![Statut du fonctionnement](https://ci-apps.yunohost.org/ci/badges/snweb.status.svg) ![Statut de maintenance](https://ci-apps.yunohost.org/ci/badges/snweb.maintain.svg)
+
 [![Installer Standard Notes avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=snweb)
 
 *[Read this readme in english.](./README.md)*
@@ -31,13 +32,17 @@ Application de prise de notes chiffrées
 * The app requires up 1500MB of RAM to install
 * The app requires around 3600MB of disk.
 
+## :red_circle: Fonctions indésirables
+
+- **Package not maintained**: This YunoHost package is not maintained and needs adoption.
+
 ## Documentations et ressources
 
 * Site officiel de l’app : <https://standardnotes.org/>
 * Documentation officielle utilisateur : <https://standardnotes.org/help>
 * Documentation officielle de l’admin : <https://docs.standardnotes.org/>
 * Dépôt de code officiel de l’app : <https://github.com/standardnotes/app>
-* Documentation YunoHost pour cette app : <https://yunohost.org/app_snweb>
+* YunoHost Store: <https://apps.yunohost.org/app/snweb>
 * Signaler un bug : <https://github.com/YunoHost-Apps/snweb_ynh/issues>
 
 ## Informations pour les développeurs
