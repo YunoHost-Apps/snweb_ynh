@@ -6,7 +6,7 @@
         "en": "End-to-end encrypted note-taking app",
         "fr": "Application de prise de notes chiffrées"
     },
-    "version": "3.142.8~ynh1",
+    "version": "3.160.8~ynh1",
     "url": "https://github.com/standardnotes/web",
     "upstream": {
         "license": "AGPL-3.0-or-later",
@@ -22,7 +22,7 @@
         "email": "46000361+FabianWilkens@users.noreply.github.com"
     },
     "requirements": {
-        "yunohost": ">= 4.3.0"
+        "yunohost": ">= 11.2"
     },
     "multi_instance": true,
     "services": [
