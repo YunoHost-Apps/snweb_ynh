@@ -1,0 +1,70 @@
+#:schema https://raw.githubusercontent.com/YunoHost/apps/master/schemas/manifest.v2.schema.json
+
+packaging_format = 2
+
+id = "snweb"
+name = "Standard Notes"
+description.en = "End-to-end encrypted note-taking app"
+description.fr = "Application de prise de notes chiffrées"
+
+version = "3.160.8~ynh1"
+
+maintainers = ["Fabian Wilkens"]
+
+[upstream]
+license = "AGPL-3.0-or-later"
+website = "https://standardnotes.org/"
+demo = "https://standardnotes.org/demo"
+admindoc = "https://docs.standardnotes.org/"
+userdoc = "https://standardnotes.org/help"
+code = "https://github.com/standardnotes/app"
+
+[integration]
+yunohost = ">= 11.2"
+architectures = "all"
+multi_instance = true
+ldap = false
+sso = false
+disk = "3600M"
+ram.build = "1500M"
+ram.runtime = "1500M"
+
+[install]
+    [install.domain]
+    type = "domain"
+
+    [install.path]
+    help.en = "You can use extensions only without a path URL."
+    type = "path"
+    default = "/"
+
+    [install.init_main_permission]
+    help.en = "A public application means that anyone can access this site."
+    type = "group"
+    default = false
+
+    [install.snserver_domain]
+    ask.en = "Choose the default Standard Notes Syncing Server"
+    ask.de = "Wähle den Standard Notes Syncing Server"
+    type = "string"
+    default = "api.standardnotes.com"
+
+[resources]
+    [resources.sources.main]
+    url = "https://github.com/standardnotes/app/archive/refs/tags/@standardnotes/web@3.160.8.tar.gz"
+    sha256 = "cb6dee23103d91dc03dd62a1e19cf4582898295a41be6b20acbf4772fdb322d4"
+
+
+    [resources.system_user]
+
+    [resources.install_dir]
+
+    [resources.permissions]
+    main.url = "/"
+
+    [resources.apt]
+
+    [resources.apt.extras.yarn]
+    repo = "deb https://dl.yarnpkg.com/debian/ stable main"
+    key = "https://dl.yarnpkg.com/debian/pubkey.gpg"
+    packages = "yarn"
