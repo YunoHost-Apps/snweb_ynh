@@ -60,7 +60,7 @@ pushd "$install_dir/live"
     ynh_use_nodejs
     ynh_exec_warn_less ynh_exec_as "$app" env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" "$ynh_node_load_PATH" yarn install --immutable
     ynh_exec_warn_less ynh_exec_as "$app" env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" "$ynh_node_load_PATH" yarn build:web
-popd$app:www-data
+popd
 
 chown -R "$app:www-data" "$install_dir"
 
