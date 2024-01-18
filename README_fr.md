@@ -16,7 +16,10 @@ Si vous n’avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) po
 
 ## Vue d’ensemble
 
-Application de prise de notes chiffrées
+Standard Notes is a free, secure note-taking app with powerful end-to-end encryption, unparalleled privacy features, and seamless cross-platform syncing on unlimited devices. 
+
+This is the web app of Standard Notes. It requires a server, [installable on YunoHost](https://github.com/YunoHost-Apps/snserver_ynh).
+
 
 **Version incluse :** 3.160.8~ynh1
 
@@ -25,12 +28,6 @@ Application de prise de notes chiffrées
 ## Captures d’écran
 
 ![Capture d’écran de Standard Notes](./doc/screenshots/standard_notes.png)
-
-## Avertissements / informations importantes
-
-* No single-sign on or LDAP integration
-* The app requires up 1500MB of RAM to install
-* The app requires around 3600MB of disk.
 
 ## :red_circle: Fonctions indésirables
 
