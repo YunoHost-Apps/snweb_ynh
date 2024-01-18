@@ -7,145 +7,62 @@
 #=================================================
 
 source _common.sh
-source ynh_install_ruby__2
 source /usr/share/yunohost/helpers
 
-#=================================================
-# LOAD SETTINGS
-#=================================================
-ynh_script_progression --message="Loading installation settings..." --weight=2
-
-app=$YNH_APP_INSTANCE_NAME
-
-domain=$(ynh_app_setting_get --app=$app --key=domain)
-path_url=$(ynh_app_setting_get --app=$app --key=path)
-final_path=$(ynh_app_setting_get --app=$app --key=final_path)
-snserver_domain=$(ynh_app_setting_get --app=$app --key=snserver_domain)
-
-#=================================================
-# CHECK VERSION
-#=================================================
-ynh_script_progression --message="Checking version..."
-
-upgrade_type=$(ynh_check_app_version_changed)
-
-#=================================================
-# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
-#=================================================
-ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=69
-
-# Backup the current version of the app
-ynh_backup_before_upgrade
-ynh_clean_setup () {
-	# Restore it if the upgrade fails
-	ynh_restore_upgradebackup
-}
-# Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
-
-#=================================================
-# STANDARD UPGRADE STEPS
-#=================================================
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
 ynh_script_progression --message="Ensuring downward compatibility..." --weight=1
 
-# Cleaning legacy permissions
-if ynh_legacy_permissions_exists; then
-	ynh_legacy_permissions_delete_all
-
-	ynh_app_setting_delete --app=$app --key=is_public
+if [ -z "${snserver_domain:-}" ]; then
+    snserver_domain="api.standardnotes.com"
+    ynh_app_setting_set --app="$app" --key=snserver_domain --value="$snserver_domain"
 fi
 
-# If final_path doesn't exist, create it
-if [ -z "$final_path" ]; then
-	final_path=/var/www/$app
-	ynh_app_setting_set --app=$app --key=final_path --value=$final_path
-fi
-
-if [ -z "$snserver_domain" ]; then
-	snserver_domain="api.standardnotes.com"
-fi
-
-if ynh_compare_current_package_version --comparison lt --version 3.66.0~ynh1
-then
-	# Remove old service
+if ynh_compare_current_package_version --comparison lt --version 3.66.0~ynh1; then
+    # Remove old service
     ynh_script_progression --message="Removing $app service..."  --weight=1
     yunohost service remove "$app"
+    ynh_remove_systemd_config --service="$app"
 
-	# Remove the dedicated systemd config
-	ynh_script_progression --message="Stopping and removing the systemd service..."  --weight=1
-	ynh_remove_systemd_config --service="$app"
-
-	# Remove unneeded ruby
-	ynh_remove_ruby
-	ynh_secure_remove --file="$final_path/.bundle"
-	ynh_secure_remove --file="$final_path/.ruby-version"
+    # Remove unneeded ruby
+    ynh_remove_ruby
+    ynh_secure_remove --file="$install_dir/.bundle"
+    ynh_secure_remove --file="$install_dir/.ruby-version"
 fi
 
 #=================================================
-# CREATE DEDICATED USER
+# INSTALL NODEJS
 #=================================================
-ynh_script_progression --message="Making sure dedicated system user exists..." --weight=1
+ynh_script_progression --message="Upgrading NodeJS..." --weight=30
 
-# Create a dedicated user (if not existing)
-ynh_system_user_create --username=$app --home_dir=$final_path
+ynh_install_nodejs --nodejs_version="$NODEJS_VERSION"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
+ynh_script_progression --message="Upgrading source files..." --weight=17
 
-if [ "$upgrade_type" == "UPGRADE_APP" ]
-then
-	ynh_script_progression --message="Upgrading source files..." --weight=17
-
-	ynh_secure_remove --file="$final_path/live"
-
-	# Download, check integrity, uncompress and patch the source from app.src
-	ynh_setup_source --dest_dir="$final_path/live"
-fi
+# Download, check integrity, uncompress and patch the source from app.src
+ynh_setup_source --dest_dir="$install_dir/live" --full_replace=1
 
 # Set permissions to app files
-chmod 750 "$final_path"
-chmod -R o-rwx "$final_path"
-chown -R $app:www-data "$final_path"
+chmod 750 "$install_dir"
+chmod -R o-rwx "$install_dir"
+chown -R "$app:www-data" "$install_dir"
 
 #=================================================
-# NGINX CONFIGURATION
+# BUILDING
 #=================================================
-ynh_script_progression --message="Upgrading NGINX web server configuration..." --weight=3
+ynh_script_progression --message="Building... ( This may take a while... )" --weight=100 #131
 
-# Create a dedicated NGINX config
-ynh_add_nginx_config
+pushd "$install_dir/live"
+    ynh_use_nodejs
+    ynh_exec_warn_less ynh_exec_as "$app" env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" "$ynh_node_load_PATH" yarn install --immutable
+    ynh_exec_warn_less ynh_exec_as "$app" env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" "$ynh_node_load_PATH" yarn build:web
+popd$app:www-data
 
-#=================================================
-# UPGRADE DEPENDENCIES
-#=================================================
-ynh_script_progression --message="Upgrading dependencies..." --weight=37
-
-ynh_install_app_dependencies $pkg_dependencies
-ynh_install_nodejs --nodejs_version=$NODEJS_VERSION
-ynh_install_extra_app_dependencies --repo="deb https://dl.yarnpkg.com/debian/ stable main" --package="yarn" --key="https://dl.yarnpkg.com/debian/pubkey.gpg"
-
-#=================================================
-# SPECIFIC UPGRADE
-#=================================================
-#=================================================
-# BUILDING 
-#=================================================
-
-if [ "$upgrade_type" == "UPGRADE_APP" ]
-then
-	ynh_script_progression --message="Building... ( This may take a while... )" --weight=100 #131
-
-	pushd "$final_path/live"
-		ynh_use_nodejs
-		ynh_exec_warn_less ynh_exec_as $app env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" $ynh_node_load_PATH yarn install --immutable
-		ynh_exec_warn_less ynh_exec_as $app env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" $ynh_node_load_PATH yarn build:web
-	popd
-	chown -R $app:www-data "$final_path"
-fi
+chown -R "$app:www-data" "$install_dir"
 
 #=================================================
 # Modify Config
@@ -153,14 +70,13 @@ fi
 ynh_script_progression --message="Configuring..." --weight=1
 
 # If $path is used modify .js file for a working app on a subpath
-cp "$final_path/live/packages/web/dist/app.js" "$final_path/live/packages/web/dist/app.js.orginal"
-if [ $path_url != "/" ]
-then
-	ynh_replace_string --match_string="/components/" --replace_string="$path_url/components/" --target_file="$final_path/live/packages/web/dist/app.js"
+cp "$install_dir/live/packages/web/dist/app.js" "$install_dir/live/packages/web/dist/app.js.orginal"
+if [ "$path" != "/" ]; then
+    ynh_replace_string --match_string="/components/" --replace_string="$path/components/" --target_file="$install_dir/live/packages/web/dist/app.js"
 fi
 
 # Modify Config
-index_file="$final_path/live/packages/web/dist/index.html"
+index_file="$install_dir/live/packages/web/dist/index.html"
 ynh_replace_string --match_string="\(defaultSyncServer = \).*" --replace_string="\1\"https://$snserver_domain\"" --target_file="$index_file"
 ynh_replace_string --match_string="\(defaultFilesHost = \).*" --replace_string="\1\"\"" --target_file="$index_file"
 ynh_replace_string --match_string="\(enabledUnfinishedFeatures = \).*" --replace_string="\1false" --target_file="$index_file"
@@ -170,14 +86,12 @@ ynh_replace_string --match_string="\(plansUrl = \).*" --replace_string="\1\"\"" 
 ynh_replace_string --match_string="\(dashboardUrl =\).*" --replace_string="\1\"\"" --target_file="$index_file"
 
 #=================================================
-# GENERIC FINALIZATION
+# REAPPLY SYSTEM CONFIGURATIONS
 #=================================================
-#=================================================
-# RELOAD NGINX
-#=================================================
-ynh_script_progression --message="Reloading NGINX web server..." --weight=1
+ynh_script_progression --message="Upgrading system configurations related to $app..." --weight=1
 
-ynh_systemd_action --service_name=nginx --action=reload
+# Create a dedicated NGINX config
+ynh_add_nginx_config
 
 #=================================================
 # END OF SCRIPT
