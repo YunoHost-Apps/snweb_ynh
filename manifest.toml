@@ -23,8 +23,11 @@ code = "https://github.com/standardnotes/app"
 yunohost = ">= 11.2"
 architectures = "all"
 multi_instance = true
+
 ldap = false
+
 sso = false
+
 disk = "3600M"
 ram.build = "1500M"
 ram.runtime = "1500M"
