@@ -16,10 +16,9 @@ Il NE doit PAS être modifié à la main.
 
 ## Vue d’ensemble
 
-Standard Notes is a free, secure note-taking app with powerful end-to-end encryption, unparalleled privacy features, and seamless cross-platform syncing on unlimited devices. 
+Standard Notes est une application de prise de notes gratuite et sécurisée avec un puissant cryptage de bout en bout, des fonctionnalités de confidentialité inégalées et une synchronisation multiplateforme transparente sur un nombre illimité d'appareils.
 
-This is the web app of Standard Notes. It requires a server, [installable on YunoHost](https://github.com/YunoHost-Apps/snserver_ynh).
-
+Standard Notes est une application Web. Standard Notes nécessite un serveur, [installable sur YunoHost](https://github.com/YunoHost-Apps/snserver_ynh).
 
 **Version incluse :** 3.160.8~ynh2
 
