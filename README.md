@@ -9,7 +9,7 @@ It shall NOT be edited by hand.
 
 [![Install Standard Notes with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=snweb)
 
-*[Read this README is other languages.](./ALL_README.md)*
+*[Read this README in other languages.](./ALL_README.md)*
 
 > *This package allows you to install Standard Notes quickly and simply on a YunoHost server.*  
 > *If you don't have YunoHost, please consult [the guide](https://yunohost.org/install) to learn how to install it.*
@@ -21,7 +21,7 @@ Standard Notes is a free, secure note-taking app with powerful end-to-end encryp
 This is the web app of Standard Notes. It requires a server, [installable on YunoHost](https://github.com/YunoHost-Apps/snserver_ynh).
 
 
-**Shipped version:** 3.160.8~ynh1
+**Shipped version:** 3.160.8~ynh2
 
 **Demo:** <https://standardnotes.org/demo>
 
