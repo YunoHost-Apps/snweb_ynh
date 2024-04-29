@@ -20,7 +20,7 @@ Standard Notes est une application de prise de notes gratuite et sécurisée ave
 
 Standard Notes est une application Web. Standard Notes nécessite un serveur, [installable sur YunoHost](https://github.com/YunoHost-Apps/snserver_ynh).
 
-**Version incluse :** 3.160.8~ynh2
+**Version incluse :** 3.160.8~ynh3
 
 **Démo :** <https://standardnotes.org/demo>
 

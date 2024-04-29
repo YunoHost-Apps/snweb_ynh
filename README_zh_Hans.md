@@ -21,7 +21,7 @@ Standard Notes is a free, secure note-taking app with powerful end-to-end encryp
 This is the web app of Standard Notes. It requires a server, [installable on YunoHost](https://github.com/YunoHost-Apps/snserver_ynh).
 
 
-**分发版本：** 3.160.8~ynh2
+**分发版本：** 3.160.8~ynh3
 
 **演示：** <https://standardnotes.org/demo>
 
