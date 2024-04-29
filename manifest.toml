@@ -44,7 +44,7 @@ ram.runtime = "1500M"
     [install.init_main_permission]
     help.en = "A public application means that anyone can access this site."
     type = "group"
-    default = false
+    default = "visitors"
 
     [install.snserver_domain]
     ask.en = "Choose the default Standard Notes Syncing Server"
