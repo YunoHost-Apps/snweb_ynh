@@ -3,7 +3,7 @@
 请勿手动编辑。
 -->
 
-# YunoHost 的 Standard Notes
+# YunoHost 上的 Standard Notes
 
 [![集成程度](https://dash.yunohost.org/integration/snweb.svg)](https://dash.yunohost.org/appci/app/snweb) ![工作状态](https://ci-apps.yunohost.org/ci/badges/snweb.status.svg) ![维护状态](https://ci-apps.yunohost.org/ci/badges/snweb.maintain.svg)
 
@@ -31,7 +31,7 @@ This is the web app of Standard Notes. It requires a server, [installable on Yun
 
 ## :red_circle: 负面特征
 
-- **Package not maintained**: This YunoHost package is not maintained and needs adoption.
+- **Package not maintained**: This YunoHost package is not actively maintained and needs adoption. This means that minimal maintenance is made by volunteers who don't use the app, so you should expect the app to lose reliability over time. You can [learn how to package](https://yunohost.org/packaging_apps_intro) if you'd like to adopt it.
 
 ## 文档与资源
 

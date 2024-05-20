@@ -31,7 +31,7 @@ This is the web app of Standard Notes. It requires a server, [installable on Yun
 
 ## :red_circle: Ezaugarri zalantzagarriak
 
-- **Mantendu gabeko paketea**: Pakete honek ez du mantenduko duenik, boluntario baten beharra dauka.
+- **Mantendu gabeko paketea**: YunoHost pakete honek ez du mantenduko duenik, bere gain hartuko duen norbaiten beharra dauka. Honek esan nahi duena da mantentze-lanak minimoak izango direla eta aplikazioa erabiltzen ez duten boluntarioek egingo dituztela lanok; denborak aurrera egin ahala fidagarri izateari utziko dio. [Aplikazioak nola paketatu](https://yunohost.org/packaging_apps_intro) ikas dezakezu, zure gain hartu nahi baduzu.
 
 ## Dokumentazioa eta baliabideak
 
