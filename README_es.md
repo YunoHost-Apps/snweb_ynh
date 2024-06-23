@@ -29,7 +29,7 @@ This is the web app of Standard Notes. It requires a server, [installable on Yun
 
 ![Captura de Standard Notes](./doc/screenshots/standard_notes.png)
 
-## :red_circle: funcionalidades no deseadas
+## :red_circle: Características no deseables
 
 - **Package not maintained**: This YunoHost package is not actively maintained and needs adoption. This means that minimal maintenance is made by volunteers who don't use the app, so you should expect the app to lose reliability over time. You can [learn how to package](https://yunohost.org/packaging_apps_intro) if you'd like to adopt it.
 
