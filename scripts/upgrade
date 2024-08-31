@@ -1,100 +1,93 @@
 #!/bin/bash
 
-#=================================================
-# GENERIC START
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
 source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
-ynh_script_progression --message="Ensuring downward compatibility..." --weight=1
+ynh_script_progression "Ensuring downward compatibility..."
 
+# FIXMEhelpers2.1: maybe replace with: ynh_app_setting_set_default --key=snserver_domain --value="api.standardnotes.com"
 if [ -z "${snserver_domain:-}" ]; then
     snserver_domain="api.standardnotes.com"
-    ynh_app_setting_set --app="$app" --key=snserver_domain --value="$snserver_domain"
+    ynh_app_setting_set --key=snserver_domain --value="$snserver_domain"
 fi
 
-if ynh_compare_current_package_version --comparison lt --version 3.66.0~ynh1; then
+if ynh_app_upgrading_from_version_before 3.66.0~ynh1; then
     # Remove old service
-    ynh_script_progression --message="Removing $app service..."  --weight=1
+    ynh_script_progression "Removing $app service..."
     yunohost service remove "$app"
-    ynh_remove_systemd_config --service="$app"
+    ynh_config_remove_systemd
 
     # Remove unneeded ruby
-    ynh_remove_ruby
-    ynh_secure_remove --file="$install_dir/.bundle"
-    ynh_secure_remove --file="$install_dir/.ruby-version"
+    ynh_ruby_remove
+    ynh_safe_rm "$install_dir/.bundle"
+    ynh_safe_rm "$install_dir/.ruby-version"
 fi
 
 #=================================================
 # INSTALL NODEJS
 #=================================================
-ynh_script_progression --message="Upgrading NodeJS..." --weight=30
+ynh_script_progression "Upgrading NodeJS..."
 
-ynh_install_nodejs --nodejs_version="$NODEJS_VERSION"
+ynh_nodejs_install
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-ynh_script_progression --message="Upgrading source files..." --weight=17
+ynh_script_progression "Upgrading source files..."
 
 # Download, check integrity, uncompress and patch the source from app.src
-ynh_setup_source --dest_dir="$install_dir/live" --full_replace=1
+ynh_setup_source --dest_dir="$install_dir/live" --full_replace
 
 # Set permissions to app files
-chmod 750 "$install_dir"
-chmod -R o-rwx "$install_dir"
-chown -R "$app:www-data" "$install_dir"
-
+#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod 750 "$install_dir"
+#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chmod -R o-rwx "$install_dir"
+#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R "$app:www-data" "$install_dir"
 #=================================================
 # BUILDING
 #=================================================
-ynh_script_progression --message="Building... ( This may take a while... )" --weight=100 #131
+ynh_script_progression "Building... ( This may take a while... )" #131
 
 pushd "$install_dir/live"
-    ynh_use_nodejs
-    ynh_exec_warn_less ynh_exec_as "$app" env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" "$ynh_node_load_PATH" yarn install --immutable
-    ynh_exec_warn_less ynh_exec_as "$app" env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" "$ynh_node_load_PATH" yarn build:web
+
+    ynh_hide_warnings ynh_exec_as_app NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" node_load_PATH" yarn install --immutable
+    ynh_hide_warnings ynh_exec_as_app NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" node_load_PATH" yarn build:web
 popd
 
-chown -R "$app:www-data" "$install_dir"
-
+#REMOVEME? Assuming the install dir is setup using ynh_setup_source, the proper chmod/chowns are now already applied and it shouldn't be necessary to tweak perms | chown -R "$app:www-data" "$install_dir"
 #=================================================
 # Modify Config
 #=================================================
-ynh_script_progression --message="Configuring..." --weight=1
+ynh_script_progression "Configuring..."
 
 # If $path is used modify .js file for a working app on a subpath
 cp "$install_dir/live/packages/web/dist/app.js" "$install_dir/live/packages/web/dist/app.js.orginal"
 if [ "$path" != "/" ]; then
-    ynh_replace_string --match_string="/components/" --replace_string="$path/components/" --target_file="$install_dir/live/packages/web/dist/app.js"
+    ynh_replace --match="/components/" --replace="$path/components/" --file="$install_dir/live/packages/web/dist/app.js"
 fi
 
 # Modify Config
 index_file="$install_dir/live/packages/web/dist/index.html"
-ynh_replace_string --match_string="\(defaultSyncServer = \).*" --replace_string="\1\"https://$snserver_domain\"" --target_file="$index_file"
-ynh_replace_string --match_string="\(defaultFilesHost = \).*" --replace_string="\1\"\"" --target_file="$index_file"
-ynh_replace_string --match_string="\(enabledUnfinishedFeatures = \).*" --replace_string="\1false" --target_file="$index_file"
-ynh_replace_string --match_string="\(websocketUrl = \).*" --replace_string="\1\"\"" --target_file="$index_file"
-ynh_replace_string --match_string="\(purchaseUrl = \).*" --replace_string="\1\"\"" --target_file="$index_file"
-ynh_replace_string --match_string="\(plansUrl = \).*" --replace_string="\1\"\"" --target_file="$index_file"
-ynh_replace_string --match_string="\(dashboardUrl =\).*" --replace_string="\1\"\"" --target_file="$index_file"
+ynh_replace --match="\(defaultSyncServer = \).*" --replace="\1\"https://$snserver_domain\"" --file="$index_file"
+ynh_replace --match="\(defaultFilesHost = \).*" --replace="\1\"\"" --file="$index_file"
+ynh_replace --match="\(enabledUnfinishedFeatures = \).*" --replace="\1false" --file="$index_file"
+ynh_replace --match="\(websocketUrl = \).*" --replace="\1\"\"" --file="$index_file"
+ynh_replace --match="\(purchaseUrl = \).*" --replace="\1\"\"" --file="$index_file"
+ynh_replace --match="\(plansUrl = \).*" --replace="\1\"\"" --file="$index_file"
+ynh_replace --match="\(dashboardUrl =\).*" --replace="\1\"\"" --file="$index_file"
 
 #=================================================
 # REAPPLY SYSTEM CONFIGURATIONS
 #=================================================
-ynh_script_progression --message="Upgrading system configurations related to $app..." --weight=1
+ynh_script_progression "Upgrading system configurations related to $app..."
 
 # Create a dedicated NGINX config
-ynh_add_nginx_config
+ynh_config_add_nginx
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Upgrade of $app completed" --last
+ynh_script_progression "Upgrade of $app completed"
