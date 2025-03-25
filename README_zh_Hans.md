@@ -5,7 +5,9 @@
 
 # YunoHost 上的 Standard Notes
 
-[![集成程度](https://dash.yunohost.org/integration/snweb.svg)](https://dash.yunohost.org/appci/app/snweb) ![工作状态](https://ci-apps.yunohost.org/ci/badges/snweb.status.svg) ![维护状态](https://ci-apps.yunohost.org/ci/badges/snweb.maintain.svg)
+[![集成程度](https://apps.yunohost.org/badge/integration/snweb)](https://ci-apps.yunohost.org/ci/apps/snweb/)
+![工作状态](https://apps.yunohost.org/badge/state/snweb)
+![维护状态](https://apps.yunohost.org/badge/maintained/snweb)
 
 [![使用 YunoHost 安装 Standard Notes](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=snweb)
 
