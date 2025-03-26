@@ -8,4 +8,13 @@ test_format = 1.0
     # Tests to run
     # ------------
 
-    test_upgrade_from.e94737.name = "3.142.8~ynh1"
+    # -------------------------------
+    # Default args to use for install
+    # -------------------------------
+
+    # -------------------------------
+    # Commits to test upgrade from
+    # -------------------------------
+
+    # test_upgrade_from.e94737.name = "3.142.8~ynh1"
+    test_upgrade_from.c88a6248dce641f540bef0dfd2cdac0f0c6d87c9.name = "Upgrade from 3.160.8~ynh3"

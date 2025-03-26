@@ -5,7 +5,9 @@ EZ editatu eskuz.
 
 # Standard Notes YunoHost-erako
 
-[![Integrazio maila](https://dash.yunohost.org/integration/snweb.svg)](https://dash.yunohost.org/appci/app/snweb) ![Funtzionamendu egoera](https://ci-apps.yunohost.org/ci/badges/snweb.status.svg) ![Mantentze egoera](https://ci-apps.yunohost.org/ci/badges/snweb.maintain.svg)
+[![Integrazio maila](https://apps.yunohost.org/badge/integration/snweb)](https://ci-apps.yunohost.org/ci/apps/snweb/)
+![Funtzionamendu egoera](https://apps.yunohost.org/badge/state/snweb)
+![Mantentze egoera](https://apps.yunohost.org/badge/maintained/snweb)
 
 [![Instalatu Standard Notes YunoHost-ekin](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=snweb)
 
@@ -46,7 +48,7 @@ This is the web app of Standard Notes. It requires a server, [installable on Yun
 
 Bidali `pull request`a [`testing` abarrera](https://github.com/YunoHost-Apps/snweb_ynh/tree/testing).
 
-`testing` abarra probatzeko, ondorengoa egin:
+`testing` abarra probatzeko, honakoa egin:
 
 ```bash
 sudo yunohost app install https://github.com/YunoHost-Apps/snweb_ynh/tree/testing --debug

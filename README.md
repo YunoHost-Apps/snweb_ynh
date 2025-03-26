@@ -5,7 +5,9 @@ It shall NOT be edited by hand.
 
 # Standard Notes for YunoHost
 
-[![Integration level](https://dash.yunohost.org/integration/snweb.svg)](https://dash.yunohost.org/appci/app/snweb) ![Working status](https://ci-apps.yunohost.org/ci/badges/snweb.status.svg) ![Maintenance status](https://ci-apps.yunohost.org/ci/badges/snweb.maintain.svg)
+[![Integration level](https://apps.yunohost.org/badge/integration/snweb)](https://ci-apps.yunohost.org/ci/apps/snweb/)
+![Working status](https://apps.yunohost.org/badge/state/snweb)
+![Maintenance status](https://apps.yunohost.org/badge/maintained/snweb)
 
 [![Install Standard Notes with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=snweb)
 

@@ -5,7 +5,9 @@ Il NE doit PAS être modifié à la main.
 
 # Standard Notes pour YunoHost
 
-[![Niveau d’intégration](https://dash.yunohost.org/integration/snweb.svg)](https://dash.yunohost.org/appci/app/snweb) ![Statut du fonctionnement](https://ci-apps.yunohost.org/ci/badges/snweb.status.svg) ![Statut de maintenance](https://ci-apps.yunohost.org/ci/badges/snweb.maintain.svg)
+[![Niveau d’intégration](https://apps.yunohost.org/badge/integration/snweb)](https://ci-apps.yunohost.org/ci/apps/snweb/)
+![Statut du fonctionnement](https://apps.yunohost.org/badge/state/snweb)
+![Statut de maintenance](https://apps.yunohost.org/badge/maintained/snweb)
 
 [![Installer Standard Notes avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=snweb)
 
@@ -19,6 +21,7 @@ Il NE doit PAS être modifié à la main.
 Standard Notes est une application de prise de notes gratuite et sécurisée avec un puissant cryptage de bout en bout, des fonctionnalités de confidentialité inégalées et une synchronisation multiplateforme transparente sur un nombre illimité d'appareils.
 
 Standard Notes est une application Web. Standard Notes nécessite un serveur, [installable sur YunoHost](https://github.com/YunoHost-Apps/snserver_ynh).
+
 
 **Version incluse :** 3.160.8~ynh3
 
