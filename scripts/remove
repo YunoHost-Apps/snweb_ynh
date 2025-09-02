@@ -12,9 +12,9 @@ source /usr/share/yunohost/helpers
 #=================================================
 # REMOVE NODEJS
 #=================================================
-ynh_script_progression --message="Removing NodeJS..." --weight=4
+#REMOVEME? ynh_script_progression --message="Removing NodeJS..." --weight=4
 
-ynh_remove_nodejs
+#REMOVEME? ynh_remove_nodejs
 
 #=================================================
 # REMOVE NGINX CONFIGURATION

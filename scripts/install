@@ -21,9 +21,9 @@ fi
 #=================================================
 # INSTALL NODEJS
 #=================================================
-ynh_script_progression --message="Installing NodeJS..." --weight=30
+#REMOVEME? ynh_script_progression --message="Installing NodeJS..." --weight=30
 
-ynh_install_nodejs --nodejs_version="$NODEJS_VERSION"
+#REMOVEME? ynh_install_nodejs --#REMOVEME? nodejs_version="$NODEJS_VERSION"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -43,7 +43,7 @@ chown -R "$app:www-data" "$install_dir"
 ynh_script_progression --message="Building... ( This may take a while... )" --weight=100 #497
 
 pushd "$install_dir/live"
-    ynh_use_nodejs
+    #REMOVEME? ynh_use_nodejs
     ynh_exec_warn_less ynh_exec_as "$app" env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" "$ynh_node_load_PATH" yarn install --immutable
     ynh_exec_warn_less ynh_exec_as "$app" env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" "$ynh_node_load_PATH" yarn build:web
 popd

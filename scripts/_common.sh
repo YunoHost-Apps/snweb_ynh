@@ -4,7 +4,7 @@
 # COMMON VARIABLES
 #=================================================
 
-NODEJS_VERSION="16"
+#REMOVEME? NODEJS_VERSION="16"
 
 node_max_old_space_size=2048
 
