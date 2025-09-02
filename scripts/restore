@@ -13,9 +13,9 @@ source /usr/share/yunohost/helpers
 #=================================================
 # INSTALL NODEJS
 #=================================================
-ynh_script_progression --message="Reinstalling NodeJS..." --weight=30
+#REMOVEME? ynh_script_progression --message="Reinstalling NodeJS..." --weight=30
 
-ynh_install_nodejs --nodejs_version="$NODEJS_VERSION"
+#REMOVEME? ynh_install_nodejs --#REMOVEME? nodejs_version="$NODEJS_VERSION"
 
 #=================================================
 # RESTORE THE APP MAIN DIR

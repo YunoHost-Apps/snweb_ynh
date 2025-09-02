@@ -20,7 +20,7 @@ userdoc = "https://standardnotes.org/help"
 code = "https://github.com/standardnotes/app"
 
 [integration]
-yunohost = ">= 11.2"
+yunohost = ">= 12.1.17"
 architectures = "all"
 multi_instance = true
 
@@ -73,3 +73,6 @@ ram.runtime = "1500M"
     repo = "deb https://dl.yarnpkg.com/debian/ stable main"
     key = "https://dl.yarnpkg.com/debian/pubkey.gpg"
     packages = ["yarn"]
+
+    [resources.nodejs]
+    version = "16"
