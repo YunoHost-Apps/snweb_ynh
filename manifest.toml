@@ -68,6 +68,7 @@ ram.runtime = "1500M"
     main.url = "/"
 
     [resources.apt]
+    packages = []
 
     [resources.apt.extras.yarn]
     repo = "deb https://dl.yarnpkg.com/debian/ stable main"
