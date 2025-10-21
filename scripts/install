@@ -31,8 +31,8 @@ ynh_script_progression "Building... ( This may take a while... )" #497
 
 pushd "$install_dir/live"
 
-    ynh_hide_warnings ynh_exec_as_app NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" node_load_PATH" yarn install --immutable
-    ynh_hide_warnings ynh_exec_as_app NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" node_load_PATH" yarn build:web
+    ynh_hide_warnings ynh_exec_as_app NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" yarn install --immutable
+    ynh_hide_warnings ynh_exec_as_app NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" yarn build:web
 popd
 
 chown -R "$app:www-data" "$install_dir"
