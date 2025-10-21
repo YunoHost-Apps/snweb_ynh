@@ -1,33 +1,25 @@
 #!/bin/bash
 
-#=================================================
-# GENERIC STARTING
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
 source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
-# STANDARD MODIFICATIONS
-#=================================================
 # MODIFY URL IN NGINX CONF
 #=================================================
-ynh_script_progression --message="Updating NGINX web server configuration..." --weight=1
+ynh_script_progression "Updating NGINX web server configuration..."
 
-ynh_change_url_nginx_config
+ynh_config_change_url_nginx
 
 #=================================================
 # SPECIFIC MODIFICATIONS
 #=================================================
-ynh_script_progression --message="Modify Configuration..." --weight=1
+ynh_script_progression "Modify Configuration..."
 
 if [ $change_path -eq 1 ]; then
     cp "$install_dir/live/packages/web/dist/app.js.orginal" "$install_dir/live/packages/web/dist/app.js"
     # If $new_path is used modify .js file for a working app on a subpath
     if [ $new_path != "/" ]; then
-        ynh_replace_string --match_string="/components/" --replace_string="$new_path/components/" --target_file="$install_dir/live/packages/web/dist/app.js"
+        ynh_replace --match="/components/" --replace="$new_path/components/" --file="$install_dir/live/packages/web/dist/app.js"
     fi
 fi
 
@@ -35,4 +27,4 @@ fi
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Change of URL completed for $app" --last
+ynh_script_progression "Change of URL completed for $app"
