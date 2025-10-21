@@ -1,11 +1,5 @@
 #!/bin/bash
 
-#=================================================
-# GENERIC START
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
 source _common.sh
 source /usr/share/yunohost/helpers
 
@@ -15,20 +9,13 @@ source /usr/share/yunohost/helpers
 
 if [ -z "$snserver_domain" ]; then
     snserver_domain="api.standardnotes.com"
-    ynh_app_setting_set --app="$app" --key=snserver_domain --value="$snserver_domain"
+    ynh_app_setting_set --key=snserver_domain --value="$snserver_domain"
 fi
-
-#=================================================
-# INSTALL NODEJS
-#=================================================
-ynh_script_progression --message="Installing NodeJS..." --weight=30
-
-ynh_install_nodejs --nodejs_version="$NODEJS_VERSION"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-ynh_script_progression --message="Setting up source files..." --weight=16
+ynh_script_progression "Setting up source files..."
 
 # Download, check integrity, uncompress and patch the source from app.src
 ynh_setup_source --dest_dir="$install_dir/live"
@@ -40,12 +27,12 @@ chown -R "$app:www-data" "$install_dir"
 #=================================================
 # BUILDING
 #=================================================
-ynh_script_progression --message="Building... ( This may take a while... )" --weight=100 #497
+ynh_script_progression "Building... ( This may take a while... )" #497
 
 pushd "$install_dir/live"
-    ynh_use_nodejs
-    ynh_exec_warn_less ynh_exec_as "$app" env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" "$ynh_node_load_PATH" yarn install --immutable
-    ynh_exec_warn_less ynh_exec_as "$app" env NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" "$ynh_node_load_PATH" yarn build:web
+
+    ynh_hide_warnings ynh_exec_as_app NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" yarn install --immutable
+    ynh_hide_warnings ynh_exec_as_app NODE_OPTIONS="--max-old-space-size=$node_max_old_space_size" yarn build:web
 popd
 
 chown -R "$app:www-data" "$install_dir"
@@ -53,34 +40,34 @@ chown -R "$app:www-data" "$install_dir"
 #=================================================
 # Modify Config
 #=================================================
-ynh_script_progression --message="Configuring..." --weight=1
+ynh_script_progression "Configuring..."
 
 # If $path is used modify .js file for a working app on a subpath
 cp "$install_dir/live/packages/web/dist/app.js" "$install_dir/live/packages/web/dist/app.js.orginal"
 if [ "$path" != "/" ]; then
-    ynh_replace_string --match_string="/components/" --replace_string="$path/components/" --target_file="$install_dir/live/packages/web/dist/app.js"
+    ynh_replace --match="/components/" --replace="$path/components/" --file="$install_dir/live/packages/web/dist/app.js"
 fi
 
 # Modify Config
 index_file="$install_dir/live/packages/web/dist/index.html"
-ynh_replace_string --match_string="\(defaultSyncServer = \).*" --replace_string="\1\"https://$snserver_domain\"" --target_file="$index_file"
-ynh_replace_string --match_string="\(defaultFilesHost = \).*" --replace_string="\1\"\"" --target_file="$index_file"
-ynh_replace_string --match_string="\(enabledUnfinishedFeatures = \).*" --replace_string="\1false" --target_file="$index_file"
-ynh_replace_string --match_string="\(websocketUrl = \).*" --replace_string="\1\"\"" --target_file="$index_file"
-ynh_replace_string --match_string="\(purchaseUrl = \).*" --replace_string="\1\"\"" --target_file="$index_file"
-ynh_replace_string --match_string="\(plansUrl = \).*" --replace_string="\1\"\"" --target_file="$index_file"
-ynh_replace_string --match_string="\(dashboardUrl =\).*" --replace_string="\1\"\"" --target_file="$index_file"
+ynh_replace --match="\(defaultSyncServer = \).*" --replace="\1\"https://$snserver_domain\"" --file="$index_file"
+ynh_replace --match="\(defaultFilesHost = \).*" --replace="\1\"\"" --file="$index_file"
+ynh_replace --match="\(enabledUnfinishedFeatures = \).*" --replace="\1false" --file="$index_file"
+ynh_replace --match="\(websocketUrl = \).*" --replace="\1\"\"" --file="$index_file"
+ynh_replace --match="\(purchaseUrl = \).*" --replace="\1\"\"" --file="$index_file"
+ynh_replace --match="\(plansUrl = \).*" --replace="\1\"\"" --file="$index_file"
+ynh_replace --match="\(dashboardUrl =\).*" --replace="\1\"\"" --file="$index_file"
 
 #=================================================
 # SYSTEM CONFIGURATION
 #=================================================
-ynh_script_progression --message="Adding system configurations related to $app..." --weight=1
+ynh_script_progression "Adding system configurations related to $app..."
 
 # Create a dedicated NGINX config
-ynh_add_nginx_config
+ynh_config_add_nginx
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Installation of $app completed" --last
+ynh_script_progression "Installation of $app completed"
