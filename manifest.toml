@@ -7,7 +7,7 @@ name = "Standard Notes"
 description.en = "End-to-end encrypted note-taking app"
 description.fr = "Application de prise de notes chiffrées"
 
-version = "3.160.8~ynh3"
+version = "3.200.4~ynh1"
 
 maintainers = ["Fabian Wilkens"]
 
@@ -20,7 +20,8 @@ userdoc = "https://standardnotes.org/help"
 code = "https://github.com/standardnotes/app"
 
 [integration]
-yunohost = ">= 11.2"
+yunohost = ">= 11.2.18"
+helpers_version = "2.1"
 architectures = "all"
 multi_instance = true
 
@@ -54,8 +55,8 @@ ram.runtime = "1500M"
 
 [resources]
     [resources.sources.main]
-    url = "https://github.com/standardnotes/app/archive/refs/tags/@standardnotes/web@3.160.8.tar.gz"
-    sha256 = "cb6dee23103d91dc03dd62a1e19cf4582898295a41be6b20acbf4772fdb322d4"
+    url = "https://github.com/standardnotes/app/archive/refs/tags/@standardnotes/web@3.200.4.tar.gz"
+    sha256 = "8ceeea56812da0e8b2714786a5e2bd04d61396273ecce379ebb21ad4f07e7b74"
 
     autoupdate.strategy = "latest_github_tag"
     autoupdate.version_regex = "^@standardnotes/web@(.*)$"
@@ -63,6 +64,7 @@ ram.runtime = "1500M"
     [resources.system_user]
 
     [resources.install_dir]
+    group = "www-data:r-x"
 
     [resources.permissions]
     main.url = "/"
@@ -74,3 +76,6 @@ ram.runtime = "1500M"
     repo = "deb https://dl.yarnpkg.com/debian/ stable main"
     key = "https://dl.yarnpkg.com/debian/pubkey.gpg"
     packages = ["yarn"]
+
+    [resources.nodejs]
+    version = "22"
