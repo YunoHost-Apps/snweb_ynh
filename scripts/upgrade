@@ -13,18 +13,6 @@ if [ -z "${snserver_domain:-}" ]; then
     ynh_app_setting_set --key=snserver_domain --value="$snserver_domain"
 fi
 
-if ynh_app_upgrading_from_version_before 3.66.0~ynh1; then
-    # Remove old service
-    ynh_script_progression "Removing $app service..."
-    yunohost service remove "$app"
-    ynh_config_remove_systemd
-
-    # Remove unneeded ruby
-    ynh_ruby_remove
-    ynh_safe_rm "$install_dir/.bundle"
-    ynh_safe_rm "$install_dir/.ruby-version"
-fi
-
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
