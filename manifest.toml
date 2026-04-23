@@ -7,7 +7,7 @@ name = "Standard Notes"
 description.en = "End-to-end encrypted note-taking app"
 description.fr = "Application de prise de notes chiffrées"
 
-version = "3.201.24~ynh1"
+version = "3.201.25~ynh1"
 
 maintainers = ["Fabian Wilkens"]
 
@@ -55,8 +55,8 @@ ram.runtime = "1500M"
 
 [resources]
     [resources.sources.main]
-    url = "https://github.com/standardnotes/app/archive/refs/tags/@standardnotes/web@3.201.24.tar.gz"
-    sha256 = "a9de73115d5f8d4ed9c24ca67a0f1b4e9f9f068ab1e0de21013ece70a77b15ae"
+    url = "https://github.com/standardnotes/app/archive/refs/tags/@standardnotes/web@3.201.25.tar.gz"
+    sha256 = "03cf446ac7b23d3be7a18a95b67d0dc974f5bc50c37304111f59e6bff30b92e6"
 
     autoupdate.strategy = "latest_github_tag"
     autoupdate.version_regex = "^@standardnotes/web@(.*)$"
